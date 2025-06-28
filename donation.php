@@ -62,11 +62,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
                 case 'stripe':
                     header("Location: payment_stripe.php?donation_id=" . $donation_id);
                     exit;
+                case 'paypack':
+                    header("Location: payment_paypack.php?donation_id=" . $donation_id);
+                    exit;
                 case 'mtn':
-                    header("Location: payment_mtn.php?donation_id=" . $donation_id);
+                    // Redirect to PayPack for unified mobile money processing
+                    header("Location: payment_paypack.php?donation_id=" . $donation_id);
                     exit;
                 case 'airtel':
-                    header("Location: payment_airtel.php?donation_id=" . $donation_id);
+                    // Redirect to PayPack for unified mobile money processing
+                    header("Location: payment_paypack.php?donation_id=" . $donation_id);
                     exit;
             }
         } else {
@@ -384,18 +389,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
                                     <small class="text-muted d-block">Secure payment with Stripe</small>
                                 </div>
 
-                                <div class="payment-method" onclick="selectPayment('mtn')">
-                                    <input type="radio" name="payment_method" value="mtn" id="mtn">
-                                    <img src="mtn.png" alt="MTN" class="payment-icon">
-                                    <strong>MTN Mobile Money</strong>
-                                    <small class="text-muted d-block">Pay with MTN MoMo</small>
-                                </div>
-
-                                <div class="payment-method" onclick="selectPayment('airtel')">
-                                    <input type="radio" name="payment_method" value="airtel" id="airtel">
-                                    <img src="airtel.png" alt="Airtel" class="payment-icon">
-                                    <strong>Airtel Money</strong>
-                                    <small class="text-muted d-block">Pay with Airtel Money</small>
+                                <div class="payment-method" onclick="selectPayment('paypack')">
+                                    <input type="radio" name="payment_method" value="paypack" id="paypack">
+                                    <img src="paypack.png" alt="PayPack" class="payment-icon">
+                                    <strong>Mobile Money (PayPack)</strong>
+                                    <small class="text-muted d-block">Pay with MTN or Airtel Mobile Money</small>
                                 </div>
                             </div>
 

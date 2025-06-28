@@ -34,6 +34,11 @@ $settings = [
     // Airtel settings
     ['airtel', 'api_key', 'AIRTEL_API_KEY'],
     ['airtel', 'api_secret', 'AIRTEL_API_SECRET'],
+
+    // PayPack Mobile Money Settings
+    ['paypack', 'client_id', 'PAYPACK_CLIENT_ID'],
+    ['paypack', 'client_secret', 'PAYPACK_CLIENT_SECRET'],
+    ['paypack', 'api_url', 'PAYPACK_API_URL'],
 ];
 
 $updated = 0;
@@ -43,17 +48,17 @@ foreach ($settings as $setting) {
     $payment_method = $setting[0];
     $setting_key = $setting[1];
     $env_key = $setting[2];
-
     $value = $_ENV[$env_key] ?? null;
+    $is_active = 1;
 
     if ($value && $value !== 'your_' . strtolower($setting_key)) {
         // Update or insert the setting
         $sql = "INSERT INTO payment_settings (payment_method, setting_key, setting_value, is_active) 
-                VALUES (?, ?, ?, 1) 
+                VALUES (?, ?, ?, ?) 
                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), is_active = VALUES(is_active)";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $payment_method, $setting_key, $value);
+        $stmt->bind_param("ssis", $payment_method, $setting_key, $value, $is_active);
 
         if ($stmt->execute()) {
             echo "<div style='color: green; margin: 5px 0;'>✓ Updated {$payment_method}.{$setting_key}</div>";
@@ -89,7 +94,7 @@ foreach ($_ENV as $key => $value) {
     if (
         strpos($key, 'STRIPE_') === 0 || strpos($key, 'PAYPAL_') === 0 ||
         strpos($key, 'AFRICASTALKING_') === 0 || strpos($key, 'MTN_') === 0 ||
-        strpos($key, 'AIRTEL_') === 0 || strpos($key, 'SMTP_') === 0
+        strpos($key, 'AIRTEL_') === 0 || strpos($key, 'PAYPACK_') === 0 || strpos($key, 'SMTP_') === 0
     ) {
         $display_value = $value;
         if (strpos($key, 'SECRET') !== false || strpos($key, 'KEY') !== false || strpos($key, 'PASSWORD') !== false) {

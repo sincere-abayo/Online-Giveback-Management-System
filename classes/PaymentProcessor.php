@@ -91,37 +91,34 @@ class PaymentProcessor extends DBConnection
     }
 
     /**
-     * Process MTN Mobile Money payment
+     * Process PayPack Mobile Money payment (unified MTN/Airtel)
      */
-    public function processMTNPayment($donation_id, $phone, $amount)
+    public function processPayPackPayment($donation_id, $phone, $amount)
     {
         try {
-            // Get MTN API settings (you'll need to implement MTN MoMo API)
-            $api_key = $this->getPaymentSetting('mtn', 'api_key');
-            $api_secret = $this->getPaymentSetting('mtn', 'api_secret');
+            require_once __DIR__ . '/PayPackHandler.php';
 
-            if (!$api_key || !$api_secret) {
-                throw new Exception('MTN Mobile Money configuration not found');
+            // Initialize PayPack handler
+            $paypackHandler = new PayPackHandler();
+
+            // Initiate payment
+            $result = $paypackHandler->initiateDonationPayment($donation_id, $amount, $phone);
+
+            if ($result['success']) {
+                return [
+                    'success' => true,
+                    'transaction_id' => $result['transaction_id'],
+                    'gateway_reference' => $result['gateway_reference'],
+                    'message' => $result['message']
+                ];
+            } else {
+                // Update donation status to failed
+                $this->updateDonationStatus($donation_id, 'failed');
+                return [
+                    'success' => false,
+                    'message' => $result['message']
+                ];
             }
-
-            // Simulate MTN payment processing
-            // In real implementation, you would call MTN MoMo API here
-            $transaction_id = 'MTN' . time() . rand(1000, 9999);
-
-            // For demo purposes, assume payment is successful
-            // In production, you would verify the payment with MTN
-
-            // Update donation status
-            $this->updateDonationStatus($donation_id, 'completed', $transaction_id);
-
-            // Send notifications
-            $this->sendDonationNotifications($donation_id);
-
-            return [
-                'success' => true,
-                'transaction_id' => $transaction_id,
-                'message' => 'MTN Mobile Money payment processed successfully'
-            ];
 
         } catch (Exception $e) {
             $this->updateDonationStatus($donation_id, 'failed');
@@ -133,45 +130,21 @@ class PaymentProcessor extends DBConnection
     }
 
     /**
-     * Process Airtel Money payment
+     * Process MTN Mobile Money payment (deprecated - use PayPack instead)
+     */
+    public function processMTNPayment($donation_id, $phone, $amount)
+    {
+        // Redirect to PayPack for unified mobile money processing
+        return $this->processPayPackPayment($donation_id, $phone, $amount);
+    }
+
+    /**
+     * Process Airtel Money payment (deprecated - use PayPack instead)
      */
     public function processAirtelPayment($donation_id, $phone, $amount)
     {
-        try {
-            // Get Airtel API settings (you'll need to implement Airtel Money API)
-            $api_key = $this->getPaymentSetting('airtel', 'api_key');
-            $api_secret = $this->getPaymentSetting('airtel', 'api_secret');
-
-            if (!$api_key || !$api_secret) {
-                throw new Exception('Airtel Money configuration not found');
-            }
-
-            // Simulate Airtel payment processing
-            // In real implementation, you would call Airtel Money API here
-            $transaction_id = 'AIRTEL' . time() . rand(1000, 9999);
-
-            // For demo purposes, assume payment is successful
-            // In production, you would verify the payment with Airtel
-
-            // Update donation status
-            $this->updateDonationStatus($donation_id, 'completed', $transaction_id);
-
-            // Send notifications
-            $this->sendDonationNotifications($donation_id);
-
-            return [
-                'success' => true,
-                'transaction_id' => $transaction_id,
-                'message' => 'Airtel Money payment processed successfully'
-            ];
-
-        } catch (Exception $e) {
-            $this->updateDonationStatus($donation_id, 'failed');
-            return [
-                'success' => false,
-                'message' => 'Payment failed: ' . $e->getMessage()
-            ];
-        }
+        // Redirect to PayPack for unified mobile money processing
+        return $this->processPayPackPayment($donation_id, $phone, $amount);
     }
 
     /**

@@ -61,8 +61,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $comment = ''; // Empty comment for new registrations
 
     if ($stmt->execute()) {
-        echo "<script>alert('Registration successful! Your roll number is: $roll');</script>";
-        include("registersucceed.php");
+        // Send welcome email
+        require_once 'classes/SimpleEmailService.php';
+        $emailService = new SimpleEmailService();
+        $emailResult = $emailService->sendWelcomeEmail($email, $firstname, $lastname, $roll);
+        
+        if ($emailResult['success']) {
+            echo "<script>alert('Registration successful! Your roll number is: $roll\\n\\nA welcome email has been sent to your email address.');</script>";
+        } else {
+            echo "<script>alert('Registration successful! Your roll number is: $roll\\n\\nNote: Welcome email could not be sent. Please check your email configuration.');</script>";
+        }
+        
+        // Redirect to volunteer dashboard
+        echo "<script>window.location.href = 'volunteer_login.php';</script>";
 
     } else {
         echo "Error: " . $stmt->error;
@@ -104,9 +115,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 background: rgba(255, 255, 255, 0.95);
                 border-radius: 20px;
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                padding: 40px;
+                padding: 50px;
                 margin: 20px auto;
-                max-width: 600px;
+                max-width: 900px;
                 color: #333;
             }
 
@@ -172,6 +183,86 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 content: " *";
                 color: #dc3545;
             }
+
+            .form-section {
+                border-bottom: 1px solid #e9ecef;
+                padding-bottom: 30px;
+            }
+
+            .form-section:last-of-type {
+                border-bottom: none;
+                padding-bottom: 20px;
+            }
+
+            .section-title {
+                color: #667eea;
+                font-weight: 700;
+                font-size: 1.3rem;
+                margin-bottom: 25px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #f8f9fa;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .section-title i {
+                background: linear-gradient(45deg, #667eea, #764ba2);
+                color: white;
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+            }
+
+            .form-actions {
+                padding-top: 20px;
+                border-top: 1px solid #e9ecef;
+                margin-top: 30px;
+            }
+
+            .btn-lg {
+                padding: 15px 35px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                border-radius: 25px;
+                transition: all 0.3s ease;
+                margin: 0 5px;
+            }
+
+            .btn-secondary {
+                background: #6c757d;
+                border: none;
+            }
+
+            .btn-secondary:hover {
+                background: #5a6268;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+            }
+
+            @media (max-width: 768px) {
+                .registration-card {
+                    padding: 30px 20px;
+                    margin: 10px;
+                }
+                
+                .section-title {
+                    font-size: 1.1rem;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+                
+                .btn-lg {
+                    display: block;
+                    width: 100%;
+                    margin: 5px 0;
+                }
+            }
         </style>
         </head>
 
@@ -190,70 +281,110 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="container">
                                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post"
                                     id="registrationForm">
-                                    <div class="form-group">
-                                        <label for="firstname" class="required-field">First Name:</label>
-                                        <input type="text" class="form-control" id="firstname" name="firstname"
-                                            placeholder="Enter your first name" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="middlename">Middle Name:</label>
-                                        <input type="text" class="form-control form" id="middlename" name="middlename"
-                                            placeholder="Enter your middle name (optional)">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="lastname" class="required-field">Last Name:</label>
-                                        <input type="text" class="form-control" id="lastname" name="lastname"
-                                            placeholder="Enter your last name" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="contact" class="required-field">Contact Number:</label>
-                                        <input type="text" class="form-control" id="contact" name="contact"
-                                            placeholder="078-000-0000" pattern="\d{10}" maxlength="10"
-                                            oninput="this.value=this.value.replace(/[^0-9]/g,'');" required>
-                                        <small class="form-text text-muted">Only 10 digits allowed.</small>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="email" class="required-field">Email Address:</label>
-                                        <input type="email" class="form-control" id="email" name="email"
-                                            placeholder="your.email@example.com"
-                                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
-                                            title="Enter a valid email address" required>
+                                    
+                                    <!-- Personal Information Section -->
+                                    <div class="form-section mb-4">
+                                        <h4 class="section-title"><i class="fas fa-user"></i> Personal Information</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="firstname" class="required-field">First Name:</label>
+                                                    <input type="text" class="form-control" id="firstname" name="firstname"
+                                                        placeholder="Enter your first name" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="middlename">Middle Name:</label>
+                                                    <input type="text" class="form-control" id="middlename" name="middlename"
+                                                        placeholder="Enter your middle name (optional)">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="lastname" class="required-field">Last Name:</label>
+                                                    <input type="text" class="form-control" id="lastname" name="lastname"
+                                                        placeholder="Enter your last name" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="contact" class="required-field">Contact Number:</label>
+                                                    <input type="text" class="form-control" id="contact" name="contact"
+                                                        placeholder="078-000-0000" pattern="\d{10}" maxlength="10"
+                                                        oninput="this.value=this.value.replace(/[^0-9]/g,'');" required>
+                                                    <small class="form-text text-muted">Only 10 digits allowed.</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label for="email" class="required-field">Email Address:</label>
+                                                    <input type="email" class="form-control" id="email" name="email"
+                                                        placeholder="your.email@example.com"
+                                                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                                        title="Enter a valid email address" required>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="password" class="required-field">Password:</label>
-                                        <input type="password" class="form-control" id="password" name="password"
-                                            placeholder="Enter your password (min 6 characters)" minlength="6" required>
-                                        <div class="password-strength" id="passwordStrength"></div>
-                                        <small class="form-text text-muted">Password must be at least 6 characters
-                                            long.</small>
+                                    <!-- Account Security Section -->
+                                    <div class="form-section mb-4">
+                                        <h4 class="section-title"><i class="fas fa-lock"></i> Account Security</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="password" class="required-field">Password:</label>
+                                                    <input type="password" class="form-control" id="password" name="password"
+                                                        placeholder="Enter your password (min 6 characters)" minlength="6" required>
+                                                    <div class="password-strength" id="passwordStrength"></div>
+                                                    <small class="form-text text-muted">Password must be at least 6 characters long.</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="confirm_password" class="required-field">Confirm Password:</label>
+                                                    <input type="password" class="form-control" id="confirm_password"
+                                                        name="confirm_password" placeholder="Confirm your password" required>
+                                                    <div id="passwordMatch"></div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="confirm_password" class="required-field">Confirm Password:</label>
-                                        <input type="password" class="form-control" id="confirm_password"
-                                            name="confirm_password" placeholder="Confirm your password" required>
-                                        <div id="passwordMatch"></div>
+                                    <!-- Motivation Section -->
+                                    <div class="form-section mb-4">
+                                        <h4 class="section-title"><i class="fas fa-heart"></i> Tell Us About Yourself</h4>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <label for="motivation" class="required-field">Why do you want to volunteer?</label>
+                                                    <textarea class="form-control" id="motivation" name="motivation"
+                                                        placeholder="Share your motivation to volunteer with us (e.g., Kindness, Calling, Fight against poverty, etc.)"
+                                                        rows="4" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="form-group">
-                                        <label for="motivation" class="required-field">Motivation:</label>
-                                        <textarea class="form-control" id="motivation" name="motivation"
-                                            placeholder="Tell us why you want to volunteer (e.g., Kindness, Calling, Fight against poverty, etc.)"
-                                            rows="4" required></textarea>
-                                    </div>
-
-                                    <div class="text-center">
+                                    <!-- Action Buttons -->
+                                    <div class="form-actions text-center">
                                         <button type="submit" name="save" class="btn btn-primary btn-lg">
                                             <i class="fas fa-user-plus"></i> Register as Volunteer
                                         </button>
-                                        <button type="button" class="btn btn-secondary btn-lg ml-2"
+                                        <button type="button" class="btn btn-secondary btn-lg ml-3"
                                             onclick="window.location.href='./index.php'">
                                             <i class="fas fa-times"></i> Cancel
                                         </button>
                                     </div>
 
-                                    <div class="text-center mt-3">
+                                    <div class="text-center mt-4">
                                         <a href="./index.php" class="text-muted">
                                             <i class="fas fa-arrow-left"></i> Back to Homepage
                                         </a>

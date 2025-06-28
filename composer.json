@@ -1,0 +1,7 @@
+{
+    "name": "gms/email-system",
+    "description": "GMS Email System",
+    "require": {
+        "phpmailer/phpmailer": "^6.10"
+    }
+}

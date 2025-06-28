@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/404.js$
+RewriteRule .* - [F,L]

@@ -1,0 +1,6 @@
+
+<p class="container" div align="center" class="i">
+  <img src="static/website/media/profile.jpg" class="rounded-circle" alt="My image" width="254" height="186"></p>
+<p class="i" div align="center">I am a 20 years old computer science student from Berlin. Let's go for a walk!</p>
+
+<div 

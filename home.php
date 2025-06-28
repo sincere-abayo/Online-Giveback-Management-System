@@ -5,44 +5,46 @@
         <div class="row min-vh-100 align-items-center">
             <div class="col-lg-8 mx-auto text-center">
                 <div class="hero-content">
-                    
+
                     <!-- Organization Badge -->
                     <div class="organization-badge animate-fadeInUp">
                         <span class="badge-text">Dufatanye Charity Foundation</span>
                     </div>
-                    
+
                     <!-- Main Title -->
                     <h1 class="hero-title animate-fadeInUp" style="animation-delay: 0.2s;">
                         Online Giveback<br>
                         Management System
                     </h1>
-                    
-                    <!-- Subtitle -->
-                    <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.4s;">
+
+                    <!-- Hero Subtitle -->
+                    <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.4s; font-weight: 800;">
                         Empowering communities through transparent giving and meaningful volunteer opportunities
                     </p>
-                    
-                    <!-- Description -->
+
+                    <!-- Hero Description -->
                     <div class="hero-description animate-fadeInUp" style="animation-delay: 0.5s;">
-                        <p>Track donations • Manage volunteers • Create lasting impact<br>
-                        <span class="text-light">Join our mission to build stronger communities together</span></p>
+                        <p>
+                            Track donations • Manage volunteers • Create lasting impact<br>
+                            <span class="text-light">Join our mission to build stronger communities together</span>
+                        </p>
                     </div>
-                    
+
                     <!-- Action Buttons -->
                     <div class="hero-buttons animate-fadeInUp" style="animation-delay: 0.6s;">
-                        <button type="button" class="btn btn-primary btn-hero" 
-                                onclick="window.location.href='checkout_mtn.php'">
+                        <button type="button" class="btn btn-primary btn-hero"
+                            onclick="window.location.href='donation.php'">
                             <i class="fa fa-gift me-2"></i>
-                            Give a Gift
+                            Donate Now
                         </button>
-                        
-                        <button type="button" class="btn btn-outline-light btn-hero" 
-                                onclick="window.location.href='registration.php'">
+
+                        <button type="button" class="btn btn-outline-light btn-hero"
+                            onclick="window.location.href='registration.php'">
                             <i class="fas fa-hand-holding-heart me-2"></i>
                             Volunteer Now
                         </button>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -53,10 +55,10 @@
 </section>
 <!-- Section-->
 <style>
-    .book-cover{
-        object-fit:contain !important;
-        height:auto !important;
-    }
+.book-cover {
+    object-fit: contain !important;
+    height: auto !important;
+}
 </style>
 
 <!-- Features Section -->
@@ -69,7 +71,8 @@
                         <i class="fas fa-shield-alt"></i>
                     </div>
                     <h4>Secure & Transparent</h4>
-                    <p>Dufatanye ensures complete transparency in donation tracking with secure, accountable processes for every transaction and giveback initiative.</p>
+                    <p>Dufatanye ensures complete transparency in donation tracking with secure, accountable processes
+                        for every transaction and giveback initiative.</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
@@ -78,7 +81,8 @@
                         <i class="fas fa-hands-helping"></i>
                     </div>
                     <h4>Community Empowerment</h4>
-                    <p>Building stronger communities through direct connection between donors, volunteers, and beneficiaries for sustainable social impact.</p>
+                    <p>Building stronger communities through direct connection between donors, volunteers, and
+                        beneficiaries for sustainable social impact.</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
@@ -87,7 +91,8 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <h4>Impact Measurement</h4>
-                    <p>Monitor donations, volunteer contributions, and community impact with comprehensive reporting and real-time analytics.</p>
+                    <p>Monitor donations, volunteer contributions, and community impact with comprehensive reporting and
+                        real-time analytics.</p>
                 </div>
             </div>
         </div>

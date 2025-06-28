@@ -2,6 +2,9 @@
     "name": "gms/email-system",
     "description": "GMS Email System",
     "require": {
-        "phpmailer/phpmailer": "^6.10"
+        "phpmailer/phpmailer": "^6.10",
+        "stripe/stripe-php": "^13.0",
+        "africastalking/africastalking": "^3.0",
+        "vlucas/phpdotenv": "^5.0"
     }
 }

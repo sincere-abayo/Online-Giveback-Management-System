@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 include 'config.php';
 
 // Check if volunteer is logged in
@@ -21,7 +23,7 @@ $volunteer = $result->fetch_assoc();
 $activity_sql = "SELECT vh.*, al.name as activity_name, al.description as activity_description 
                  FROM volunteer_history vh 
                  JOIN activity_list al ON vh.activity_id = al.id 
-                 WHERE vh.volunteer_id = ? AND vh.delete_flag = 0 
+                 WHERE vh.volunteer_id = ? 
                  ORDER BY vh.date_created DESC";
 $activity_stmt = $conn->prepare($activity_sql);
 $activity_stmt->bind_param("i", $volunteer_id);
@@ -162,6 +164,11 @@ if (isset($_GET['logout'])) {
             margin-bottom: 20px;
         }
 
+        .stats-card.bg-warning {
+            background: linear-gradient(45deg, #ffc107, #ff8f00);
+            color: #212529;
+        }
+
         .stats-number {
             font-size: 2.5rem;
             font-weight: bold;
@@ -171,6 +178,41 @@ if (isset($_GET['logout'])) {
         .stats-label {
             font-size: 1rem;
             opacity: 0.9;
+        }
+
+        .status-banner {
+            border-left: 5px solid #ffc107;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-banner h4 {
+            color: #856404;
+            font-weight: 600;
+        }
+
+        .status-banner p {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
         }
     </style>
 </head>
@@ -197,6 +239,30 @@ if (isset($_GET['logout'])) {
 
     <div class="dashboard-container">
         <div class="container">
+            <!-- Status Banner for Pending Volunteers -->
+            <?php if ($volunteer['status'] == 0): ?>
+                <div class="dashboard-card status-banner">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-center">
+                            <i class="fas fa-clock fa-3x text-warning"></i>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 class="text-warning mb-2"><i class="fas fa-exclamation-triangle"></i> Account Pending
+                                Approval</h4>
+                            <p class="mb-2">Your volunteer account is currently under review by our administrators. You can
+                                still access your dashboard and view your information.</p>
+                            <p class="mb-0"><strong>What happens next?</strong> Once approved, you'll be able to participate
+                                in volunteer activities and receive notifications about upcoming events.</p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <button class="btn btn-outline-warning btn-sm" onclick="window.location.href='index.php'">
+                                <i class="fas fa-home"></i> Go Home
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <!-- Profile Section -->
             <div class="dashboard-card">
                 <div class="profile-header">
@@ -209,6 +275,15 @@ if (isset($_GET['logout'])) {
                         class="status-badge <?php echo $volunteer['status'] == 1 ? 'status-approved' : 'status-pending'; ?>">
                         <?php echo $volunteer['status'] == 1 ? 'Approved' : 'Pending Approval'; ?>
                     </span>
+                    <?php if ($volunteer['status'] == 0): ?>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Your account was registered on
+                                <?php echo date('F j, Y', strtotime($volunteer['date_created'])); ?>
+                            </small>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="row">
@@ -267,7 +342,7 @@ if (isset($_GET['logout'])) {
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="stats-card">
+                    <div class="stats-card <?php echo $volunteer['status'] == 0 ? 'bg-warning' : ''; ?>">
                         <div class="stats-number"><?php echo $volunteer['status'] == 1 ? 'Active' : 'Pending'; ?></div>
                         <div class="stats-label">Account Status</div>
                     </div>
@@ -283,6 +358,14 @@ if (isset($_GET['logout'])) {
             <!-- Activities Section -->
             <div class="dashboard-card">
                 <h3><i class="fas fa-tasks"></i> My Activities</h3>
+
+                <?php if ($volunteer['status'] == 0): ?>
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> You can view activities here once your account is approved by the
+                        administrator.
+                    </div>
+                <?php endif; ?>
 
                 <?php if ($activities->num_rows > 0): ?>
                     <?php while ($activity = $activities->fetch_assoc()): ?>
@@ -308,8 +391,13 @@ if (isset($_GET['logout'])) {
                     <div class="text-center py-4">
                         <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
                         <h5 class="text-muted">No activities yet</h5>
-                        <p class="text-muted">You haven't joined any activities yet. Contact the administrator to get
-                            started!</p>
+                        <p class="text-muted">You haven't joined any activities yet.
+                            <?php if ($volunteer['status'] == 0): ?>
+                                Once your account is approved, you'll be able to join activities.
+                            <?php else: ?>
+                                Contact the administrator to get started!
+                            <?php endif; ?>
+                        </p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -334,6 +422,18 @@ if (isset($_GET['logout'])) {
                         </a>
                     </div>
                 </div>
+
+                <?php if ($volunteer['status'] == 0): ?>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info" role="alert">
+                                <i class="fas fa-question-circle"></i>
+                                <strong>Need help?</strong> If you have questions about your pending application,
+                                please contact the administrator or visit our homepage for more information.
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 include 'config.php';
 
 $error_message = '';
@@ -19,20 +21,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $volunteer = $result->fetch_assoc();
 
         if (password_verify($password, $volunteer['password'])) {
-            if ($volunteer['status'] == 1) {
-                // Login successful
-                $_SESSION['volunteer_id'] = $volunteer['id'];
-                $_SESSION['volunteer_roll'] = $volunteer['roll'];
-                $_SESSION['volunteer_name'] = $volunteer['firstname'] . ' ' . $volunteer['lastname'];
-                $_SESSION['volunteer_email'] = $volunteer['email'];
-                $_SESSION['volunteer_type'] = 'volunteer';
+            // Login successful - allow access regardless of status
+            $_SESSION['volunteer_id'] = $volunteer['id'];
+            $_SESSION['volunteer_roll'] = $volunteer['roll'];
+            $_SESSION['volunteer_name'] = $volunteer['firstname'] . ' ' . $volunteer['lastname'];
+            $_SESSION['volunteer_email'] = $volunteer['email'];
+            $_SESSION['volunteer_type'] = 'volunteer';
+            $_SESSION['volunteer_status'] = $volunteer['status'];
 
-                // Redirect to volunteer dashboard
-                header("Location: volunteer_dashboard.php");
-                exit;
-            } else {
-                $error_message = "Your account is pending approval. Please contact the administrator.";
-            }
+            // Redirect to volunteer dashboard
+            header("Location: volunteer_dashboard.php");
+            exit;
         } else {
             $error_message = "Invalid email or password.";
         }

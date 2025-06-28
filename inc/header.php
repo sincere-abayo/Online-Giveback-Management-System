@@ -34,7 +34,7 @@
     <link rel="stylesheet" href="<?php echo base_url ?>assets/css/events.css">
     <link rel="stylesheet" href="<?php echo base_url ?>assets/css/team.css">
     <link rel="stylesheet" href="<?php echo base_url ?>assets/css/about.css">
-    <link rel="stylesheet" href="<?php echo base_url ?>assets/css/galley.css">
+    <link rel="stylesheet" href="<?php echo base_url ?>assets/css/gallery.css">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="<?php echo base_url ?>plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     <!-- Daterange picker -->

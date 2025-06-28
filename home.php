@@ -5,28 +5,44 @@
         <div class="row min-vh-100 align-items-center">
             <div class="col-lg-8 mx-auto text-center">
                 <div class="hero-content">
+                    
+                    <!-- Organization Badge -->
                     <div class="organization-badge animate-fadeInUp">
                         <span class="badge-text">Dufatanye Charity Foundation</span>
                     </div>
+                    
+                    <!-- Main Title -->
                     <h1 class="hero-title animate-fadeInUp" style="animation-delay: 0.2s;">
-                        Online Giveback Management System
+                        Online Giveback<br>
+                        Management System
                     </h1>
+                    
+                    <!-- Subtitle -->
                     <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.4s;">
-                        Empowering communities through transparent giving and meaningful volunteer opportunities with Dufatanye Charity Foundation
+                        Empowering communities through transparent giving and meaningful volunteer opportunities
                     </p>
+                    
+                    <!-- Description -->
                     <div class="hero-description animate-fadeInUp" style="animation-delay: 0.5s;">
-                        <p>A comprehensive platform for tracking donations, managing volunteers, and creating lasting impact in our communities</p>
+                        <p>Track donations • Manage volunteers • Create lasting impact<br>
+                        <span class="text-light">Join our mission to build stronger communities together</span></p>
                     </div>
+                    
+                    <!-- Action Buttons -->
                     <div class="hero-buttons animate-fadeInUp" style="animation-delay: 0.6s;">
-                        <button type="button" class="btn btn-primary btn-hero" onclick="window.location.href='checkout_mtn.php'">
+                        <button type="button" class="btn btn-primary btn-hero" 
+                                onclick="window.location.href='checkout_mtn.php'">
                             <i class="fa fa-gift me-2"></i>
                             Give a Gift
                         </button>
-                        <button type="button" class="btn btn-outline-light btn-hero" onclick="window.location.href='registration.php'">
+                        
+                        <button type="button" class="btn btn-outline-light btn-hero" 
+                                onclick="window.location.href='registration.php'">
                             <i class="fas fa-hand-holding-heart me-2"></i>
                             Volunteer Now
                         </button>
                     </div>
+                    
                 </div>
             </div>
         </div>

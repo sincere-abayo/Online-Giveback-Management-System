@@ -105,20 +105,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
         <style>
             body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
+                background-color: #f8f9fa;
+                color: #222;
                 min-height: 100vh;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
 
             .registration-card {
-                background: rgba(255, 255, 255, 0.95);
+                background-color: #fff;
                 border-radius: 20px;
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
                 padding: 50px;
                 margin: 20px auto;
                 max-width: 900px;
-                color: #333;
+                color: #222;
             }
 
             .form-control {
@@ -134,7 +134,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             .btn-primary {
-                background: linear-gradient(45deg, #667eea, #764ba2);
+                background-color: #2c5aa0;
+                color: #fff;
                 border: none;
                 border-radius: 25px;
                 padding: 12px 30px;
@@ -143,8 +144,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+                background-color: #24487a;
             }
 
             .password-strength {
@@ -167,8 +167,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             .card-header {
-                background: linear-gradient(45deg, #667eea, #764ba2);
-                color: white;
+                background-color: #2c5aa0;
+                color: #fff;
                 border-radius: 15px 15px 0 0 !important;
                 text-align: center;
                 padding: 20px;

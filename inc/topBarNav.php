@@ -68,16 +68,11 @@
                     <?php endif; ?>
             </ul>
 
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-primary me-2" type="button" id="login">Login</button>
+                <button class="btn btn-success" type="button" id="checkout">Donate</button>
             </div>
         </div>
-        <button class="btn btn-primary" type="button" id="login">Join</button>
-        -
-        <button class="btn btn-success" type="button" id="volunteer_login">Volunteer Login</button>
-        -
-        <button class="btn btn-warning" type="button" id="manager_login">Manager Login</button>
-        -
-        <button class="btn btn-primary" type="button" id="checkout">Donate</button>
         <form class="form-inline ml-4 mr-2 pl-2" id="search-form">
             <div class="input-group">
                 <input class="form-control form-control-sm form " type="search" placeholder="Search" aria-label="Search"
@@ -91,50 +86,43 @@
         </form>
     </div>
 </nav>
+<!-- Login Role Selection Modal -->
+<div class="modal fade" id="loginRoleModal" tabindex="-1" role="dialog" aria-labelledby="loginRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginRoleModalLabel">Select Login Type</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <button class="btn btn-primary btn-block mb-2" onclick="window.location.href='volunteer_login.php'">
+          Volunteer Login
+        </button>
+        <button class="btn btn-success btn-block mb-2" onclick="window.location.href='manager/login.php'">
+          Manager Login
+        </button>
+        <button class="btn btn-dark btn-block" onclick="window.location.href='admin/index.php'">
+          Admin Login
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 $(function() {
-    $('#login-btn').click(function() {
-        uni_modal("", "login.php")
-    })
-    $('#navbarResponsive').on('show.bs.collapse', function() {
-        $('#mainNav').addClass('navbar-shrink')
-    })
-    $('#navbarResponsive').on('hidden.bs.collapse', function() {
-        if ($('body').offset.top == 0)
-            $('#mainNav').removeClass('navbar-shrink')
-    })
-
+    $('#login').click(function() {
+        $('#loginRoleModal').modal('show');
+    });
+    $('#checkout').click(function() {
+        window.location.href = 'donation.php';
+    });
     $('#search-form').submit(function(e) {
-        e.preventDefault()
-        var sTxt = $('[name="search"]').val()
+        e.preventDefault();
+        var sTxt = $('[name="search"]').val();
         if (sTxt != '')
             location.href = './?p=search&search=' + sTxt;
-    })
-    $('#login').click(function() {
-        uni_modal('Login', 'login.php')
-    })
-    $('#volunteer_login').click(function() {
-        window.location.href = 'volunteer_login.php'
-    })
-    $('#manager_login').click(function() {
-        window.location.href = 'manager/login.php'
-    })
-})
-</script>
-<script>
-$(function() {
-    $('#checkout-btn').click(function() {
-        window.location.href = 'donation.php'
-    })
-    $('#navbarResponsive').on('show.bs.collapse', function() {
-        $('#mainNav').addClass('navbar-shrink')
-    })
-    $('#navbarResponsive').on('hidden.bs.collapse', function() {
-        if ($('body').offset.top == 0)
-            $('#mainNav').removeClass('navbar-shrink')
-    })
-    $('#checkout').click(function() {
-        window.location.href = 'donation.php'
-    })
+    });
 })
 </script>

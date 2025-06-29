@@ -14,7 +14,8 @@
         body {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #f8f9fa;
+            color: #222;
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
@@ -23,7 +24,8 @@
         }
 
         .success-card {
-            background: white;
+            background-color: #fff;
+            color: #222;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 40px;
@@ -48,7 +50,7 @@
         .success-icon {
             width: 120px;
             height: 120px;
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background-color: #f8f9fa;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -73,7 +75,7 @@
 
         .success-icon i {
             font-size: 60px;
-            color: white;
+            color: #28a745;
         }
 
         .success-title {
@@ -93,7 +95,7 @@
         .progress-bar {
             width: 100%;
             height: 6px;
-            background: #e9ecef;
+            background-color: #e9ecef;
             border-radius: 3px;
             overflow: hidden;
             margin-bottom: 30px;
@@ -101,7 +103,7 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(45deg, #28a745, #20c997);
+            background-color: #28a745;
             width: 0%;
             animation: progress 3s linear forwards;
         }
@@ -136,19 +138,16 @@
         }
 
         .btn-primary-custom {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            color: white;
+            background-color: #2c5aa0;
+            color: #fff;
         }
 
         .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
-            color: white;
-            text-decoration: none;
+            background-color: #24487a;
         }
 
         .btn-secondary-custom {
-            background: linear-gradient(45deg, #6c757d, #545b62);
+            background-color: #6c757d;
             color: white;
         }
 
@@ -163,7 +162,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #f8f9fa;
+            background-color: #f8f9fa;
             padding: 8px 15px;
             border-radius: 20px;
             font-size: 12px;

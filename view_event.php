@@ -14,8 +14,8 @@ if($qry->num_rows > 0){
         border: none;
     }
     #uni_modal .modal-header {
-        background: linear-gradient(135deg, #2c5aa0 0%, #764ba2 100%);
-        color: white;
+        background-color: #2c5aa0;
+        color: #fff;
         border: none;
         padding: 1.5rem;
     }
@@ -25,7 +25,8 @@ if($qry->num_rows > 0){
     #uni_modal .modal-footer {
         border: none;
         padding: 1.5rem;
-        background: #f8f9fa;
+        background: #fff;
+        color: #222;
     }
     .event-modal-image {
         width: 100%;
@@ -35,10 +36,12 @@ if($qry->num_rows > 0){
     }
     .event-modal-content {
         padding: 2rem;
+        background-color: #fff;
+        color: #222;
     }
     .event-modal-date {
-        background: linear-gradient(135deg, #2c5aa0 0%, #764ba2 100%);
-        color: white;
+        background-color: #2c5aa0;
+        color: #fff;
         padding: 10px 20px;
         border-radius: 25px;
         display: inline-block;
@@ -48,7 +51,7 @@ if($qry->num_rows > 0){
     .event-modal-title {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #2c3e50;
+        color: #2c5aa0;
         margin-bottom: 1rem;
     }
     .event-modal-description {

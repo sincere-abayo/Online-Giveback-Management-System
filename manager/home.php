@@ -109,7 +109,7 @@
           </div>
         
     <div class="col-12 col-sm-12 col-md-6 col-lg-3">
-        <div class="info-box bg-gradient-light shadow">
+        <div class="info-box bg-white shadow">
             <span class="info-box-icon bg-info elevation-1"><i class="fas fa-home"></i></span>
 
             <div class="info-box-content">
@@ -125,7 +125,7 @@
           </div>
         
     <div class="col-12 col-sm-12 col-md-6 col-lg-3">
-        <div class="info-box bg-gradient-light shadow">
+        <div class="info-box bg-white shadow">
             <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-image"></i></span>
 
             <div class="info-box-content">

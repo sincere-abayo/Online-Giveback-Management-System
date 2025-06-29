@@ -1,4 +1,16 @@
 <style>
+body {
+    background-color: #f8f9fa;
+    color: #222;
+}
+.btn-primary {
+    background-color: #2c5aa0;
+    color: #fff;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #24487a;
+}
 #uni_modal .modal-content>.modal-footer,
 #uni_modal .modal-content>.modal-header {
     display: none;

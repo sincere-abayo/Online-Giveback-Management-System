@@ -100,12 +100,14 @@ if (isset($_GET['id'])) {
                         <table class="table table-stripped table-bordered" id="volunteer-history">
                             <colgroup>
                                 <col width="5%">
-                                <col width="20%">
-                                <col width="15%">
-                                <col width="15%">
-                                <col width="10%">
-                                <col width="10%">
-                                <col width="10%">
+                                <col width="18%">
+                                <col width="12%">
+                                <col width="12%">
+                                <col width="8%">
+                                <col width="8%">
+                                <col width="8%">
+                                <col width="8%">
+                                <col width="13%">
                             </colgroup>
                             <thead>
                                 <tr class="bg-gradient-dark">
@@ -115,6 +117,8 @@ if (isset($_GET['id'])) {
                                     <th class="py-1 text-center">Session</th>
                                     <th class="py-1 text-center">Status</th>
                                     <th class="py-1 text-center">End Status</th>
+                                    <th class="py-1 text-center">Email</th>
+                                    <th class="py-1 text-center">SMS</th>
                                     <th class="py-1 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -181,6 +185,28 @@ if (isset($_GET['id'])) {
                                                     echo '<span class="badge badge-light">Unknown</span>';
                                             }
                                             ?>
+                                        </td>
+                                        <td class="px-2 py-1 align-middle text-center">
+                                            <?php if (isset($row['email_sent']) && $row['email_sent']): ?>
+                                                <span class="badge badge-success" title="Email notification sent">
+                                                    <i class="fas fa-envelope"></i> Sent
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge badge-secondary" title="Email notification not sent">
+                                                    <i class="fas fa-envelope"></i> Not Sent
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="px-2 py-1 align-middle text-center">
+                                            <?php if (isset($row['sms_sent']) && $row['sms_sent']): ?>
+                                                <span class="badge badge-success" title="SMS notification sent">
+                                                    <i class="fas fa-sms"></i> Sent
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge badge-secondary" title="SMS notification not sent">
+                                                    <i class="fas fa-sms"></i> Not Sent
+                                                </span>
+                                            <?php endif; ?>
                                         </td>
                                         <td class="px-2 py-1 align-middle text-center">
                                             <button type="button"

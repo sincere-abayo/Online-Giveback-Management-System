@@ -58,298 +58,298 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-        }
+    .navbar {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    }
 
-        .main-container {
-            padding: 30px 0;
-        }
+    .main-container {
+        padding: 30px 0;
+    }
 
+    .content-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f8f9fa;
+    }
+
+    .section-title {
+        color: #667eea;
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .section-title i {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .program-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-left: 5px solid #667eea;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .program-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+    }
+
+    .program-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .program-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .program-title {
+        color: #667eea;
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin: 0;
+    }
+
+    .activity-count {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .program-description {
+        color: #6c757d;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .activities-list {
+        margin-top: 20px;
+    }
+
+    .activity-item {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 4px solid #28a745;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .activity-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .activity-item.volunteer-joined {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    }
+
+    .activity-item.volunteer-joined::after {
+        content: '✓ Joined';
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: #ffc107;
+        color: #856404;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .activity-name {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+    }
+
+    .activity-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .event-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .event-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .event-content {
+        padding: 20px;
+    }
+
+    .event-title {
+        font-weight: 700;
+        color: #495057;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+    }
+
+    .event-description {
+        color: #6c757d;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+
+    .event-date {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .stats-card {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .stats-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .nav-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 30px;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 15px 25px;
+        border-radius: 10px 10px 0 0;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+    }
+
+    .nav-tabs .nav-link:hover {
+        border: none;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
         .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f8f9fa;
+            padding: 20px;
+            margin: 10px;
         }
 
         .section-title {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .section-title i {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .program-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 5px solid #667eea;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .program-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-        }
-
-        .program-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            font-size: 1.4rem;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .program-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .program-title {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.4rem;
-            margin: 0;
-        }
-
-        .activity-count {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .program-description {
-            color: #6c757d;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .activities-list {
-            margin-top: 20px;
-        }
-
-        .activity-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 4px solid #28a745;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .activity-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .activity-item.volunteer-joined {
-            border-left-color: #ffc107;
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-        }
-
-        .activity-item.volunteer-joined::after {
-            content: '✓ Joined';
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: #ffc107;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .activity-name {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-
-        .activity-description {
-            color: #6c757d;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
         }
 
         .events-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: 1fr;
         }
-
-        .event-card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        .event-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .event-content {
-            padding: 20px;
-        }
-
-        .event-title {
-            font-weight: 700;
-            color: #495057;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .event-description {
-            color: #6c757d;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .event-date {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .stats-card {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .stats-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stats-label {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .nav-tabs {
-            border-bottom: 2px solid #e9ecef;
-            margin-bottom: 30px;
-        }
-
-        .nav-tabs .nav-link {
-            border: none;
-            color: #6c757d;
-            font-weight: 600;
-            padding: 15px 25px;
-            border-radius: 10px 10px 0 0;
-            transition: all 0.3s ease;
-        }
-
-        .nav-tabs .nav-link.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-        }
-
-        .nav-tabs .nav-link:hover {
-            border: none;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #6c757d;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        @media (max-width: 768px) {
-            .content-card {
-                padding: 20px;
-                margin: 10px;
-            }
-
-            .section-title {
-                font-size: 1.4rem;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .program-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .events-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    }
     </style>
 </head>
 
@@ -433,19 +433,19 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
                         </div>
 
                         <?php if ($programs_result->num_rows > 0): ?>
-                                <?php while ($program = $programs_result->fetch_assoc()): ?>
-                                        <div class="program-card">
-                                            <div class="program-header">
-                                                <h3 class="program-title"><?php echo htmlspecialchars($program['name']); ?></h3>
-                                                <span class="activity-count">
-                                                    <?php echo $program['activity_count']; ?> Activities
-                                                </span>
-                                            </div>
-                                    
-                                            <p class="program-description"><?php echo htmlspecialchars($program['description']); ?></p>
-                                    
-                                            <div class="activities-list">
-                                                <?php
+                        <?php while ($program = $programs_result->fetch_assoc()): ?>
+                        <div class="program-card">
+                            <div class="program-header">
+                                <h3 class="program-title"><?php echo htmlspecialchars($program['name']); ?></h3>
+                                <span class="activity-count">
+                                    <?php echo $program['activity_count']; ?> Activities
+                                </span>
+                            </div>
+
+                            <p class="program-description"><?php echo htmlspecialchars($program['description']); ?></p>
+
+                            <div class="activities-list">
+                                <?php
                                                 // Get activities for this program
                                                 $activities_sql = "SELECT * FROM activity_list 
                                                           WHERE program_id = ? AND status = 1 AND delete_flag = 0 
@@ -459,28 +459,29 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
                                                     while ($activity = $activities_result->fetch_assoc()):
                                                         $is_joined = in_array($activity['id'], $volunteer_activity_ids);
                                                         ?>
-                                                            <div class="activity-item <?php echo $is_joined ? 'volunteer-joined' : ''; ?>">
-                                                                <div class="activity-name"><?php echo htmlspecialchars($activity['name']); ?></div>
-                                                                <div class="activity-description"><?php echo htmlspecialchars($activity['description']); ?></div>
-                                                            </div>
-                                                    <?php
+                                <div class="activity-item <?php echo $is_joined ? 'volunteer-joined' : ''; ?>">
+                                    <div class="activity-name"><?php echo htmlspecialchars($activity['name']); ?></div>
+                                    <div class="activity-description">
+                                        <?php echo htmlspecialchars($activity['description']); ?></div>
+                                </div>
+                                <?php
                                                     endwhile;
                                                 else:
                                                     ?>
-                                                        <div class="empty-state">
-                                                            <i class="fas fa-clipboard-list"></i>
-                                                            <p>No activities available for this program yet.</p>
-                                                        </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                <?php endwhile; ?>
-                        <?php else: ?>
                                 <div class="empty-state">
-                                    <i class="fas fa-project-diagram"></i>
-                                    <h4>No Programs Available</h4>
-                                    <p>There are currently no active programs. Please check back later!</p>
+                                    <i class="fas fa-clipboard-list"></i>
+                                    <p>No activities available for this program yet.</p>
                                 </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endwhile; ?>
+                        <?php else: ?>
+                        <div class="empty-state">
+                            <i class="fas fa-project-diagram"></i>
+                            <h4>No Programs Available</h4>
+                            <p>There are currently no active programs. Please check back later!</p>
+                        </div>
                         <?php endif; ?>
                     </div>
 
@@ -495,31 +496,31 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
                         </div>
 
                         <?php if ($events_result->num_rows > 0): ?>
-                                <div class="events-grid">
-                                    <?php while ($event = $events_result->fetch_assoc()): ?>
-                                            <div class="event-card">
-                                                <?php if (!empty($event['img_path'])): ?>
-                                                        <img src="../<?php echo htmlspecialchars($event['img_path']); ?>" 
-                                                             alt="<?php echo htmlspecialchars($event['title']); ?>" 
-                                                             class="event-image">
-                                                <?php endif; ?>
-                                                <div class="event-content">
-                                                    <h4 class="event-title"><?php echo htmlspecialchars($event['title']); ?></h4>
-                                                    <p class="event-description"><?php echo htmlspecialchars($event['description']); ?></p>
-                                                    <div class="event-date">
-                                                        <i class="fas fa-calendar"></i>
-                                                        <?php echo date('F j, Y', strtotime($event['schedule'])); ?>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    <?php endwhile; ?>
+                        <div class="events-grid">
+                            <?php while ($event = $events_result->fetch_assoc()): ?>
+                            <div class="event-card">
+                                <?php if (!empty($event['img_path'])): ?>
+                                <img src="../<?php echo htmlspecialchars($event['img_path']); ?>"
+                                    alt="<?php echo htmlspecialchars($event['title']); ?>" class="event-image">
+                                <?php endif; ?>
+                                <div class="event-content">
+                                    <h4 class="event-title"><?php echo htmlspecialchars($event['img_path']); ?></h4>
+                                    <p class="event-description"><?php echo htmlspecialchars($event['description']); ?>
+                                    </p>
+                                    <div class="event-date">
+                                        <i class="fas fa-calendar"></i>
+                                        <?php echo date('F j, Y', strtotime($event['schedule'])); ?>
+                                    </div>
                                 </div>
+                            </div>
+                            <?php endwhile; ?>
+                        </div>
                         <?php else: ?>
-                                <div class="empty-state">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <h4>No Events Scheduled</h4>
-                                    <p>There are currently no upcoming events. Check back soon for new announcements!</p>
-                                </div>
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h4>No Events Scheduled</h4>
+                            <p>There are currently no upcoming events. Check back soon for new announcements!</p>
+                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -532,50 +533,50 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         });
+    });
 
-        // Add animation to program cards on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+    // Add animation to program cards on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observe all program cards
-        document.querySelectorAll('.program-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(card);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
         });
+    }, observerOptions);
 
-        // Observe all event cards
-        document.querySelectorAll('.event-card').forEach(card => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(card);
-        });
+    // Observe all program cards
+    document.querySelectorAll('.program-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+
+    // Observe all event cards
+    document.querySelectorAll('.event-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
     </script>
 </body>
 

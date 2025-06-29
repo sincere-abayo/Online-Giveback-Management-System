@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter Demo - Academic Purpose</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        .demo-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .conversion-result {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        .academic-note {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-card">
+        <h2 class="text-center mb-4">🏫 Simple Currency Converter Demo</h2>
+        <p class="text-center text-muted">Academic Purpose - Basic Implementation</p>
+        
+        <div class="academic-note">
+            <strong>📚 Academic Note:</strong> This is a simplified currency converter using a fixed exchange rate (1 USD = 1300 RWF) for educational purposes. In production, you would use real-time exchange rates from a financial API.
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" class="form-control" placeholder="Enter amount" min="0" step="0.01">
+            </div>
+            <div class="col-md-6">
+                <label for="fromCurrency">From Currency:</label>
+                <select id="fromCurrency" class="form-control">
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="RWF" selected>RWF (Rwandan Franc)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="text-center my-3">
+            <button onclick="convertCurrency()" class="btn btn-primary">Convert Currency</button>
+        </div>
+        
+        <div id="conversionResult" class="conversion-result" style="display: none;">
+            <!-- Conversion result will appear here -->
+        </div>
+        
+        <div class="mt-4">
+            <h5>Features Implemented:</h5>
+            <ul>
+                <li>✅ Support for USD and RWF currencies</li>
+                <li>✅ Fixed exchange rate (1 USD = 1300 RWF)</li>
+                <li>✅ Minimum amount validation</li>
+                <li>✅ Currency formatting with symbols</li>
+                <li>✅ Database storage of original and converted amounts</li>
+                <li>✅ Integration with donation form</li>
+                <li>✅ Real-time conversion display</li>
+            </ul>
+        </div>
+        
+        <div class="mt-4 text-center">
+            <a href="donation.php" class="btn btn-success">🎯 Try Live Donation Form</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        const USD_TO_RWF_RATE = 1300;
+        
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            let convertedAmount, toCurrency;
+            
+            if (fromCurrency === 'USD') {
+                convertedAmount = amount * USD_TO_RWF_RATE;
+                toCurrency = 'RWF';
+            } else {
+                convertedAmount = amount / USD_TO_RWF_RATE;
+                toCurrency = 'USD';
+            }
+            
+            const originalFormatted = formatAmount(amount, fromCurrency);
+            const convertedFormatted = formatAmount(convertedAmount, toCurrency);
+            
+            document.getElementById('conversionResult').innerHTML = `
+                <h4>${originalFormatted} = ${convertedFormatted}</h4>
+                <small class="text-muted">Exchange Rate: 1 USD = 1,300 RWF</small>
+            `;
+            document.getElementById('conversionResult').style.display = 'block';
+        }
+        
+        function formatAmount(amount, currency) {
+            if (currency === 'USD') {
+                return '$' + amount.toFixed(2);
+            } else {
+                return amount.toLocaleString() + ' RWF';
+            }
+        }
+        
+        // Convert on Enter key
+        document.getElementById('amount').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertCurrency();
+            }
+        });
+    </script>
+</body>
+</html>

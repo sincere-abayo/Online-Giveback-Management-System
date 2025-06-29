@@ -3,6 +3,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 include 'config.php';
+require_once 'classes/CurrencyConverter.php';
 
 // Check if volunteer is logged in
 if (!isset($_SESSION['volunteer_id']) || $_SESSION['volunteer_type'] !== 'volunteer') {
@@ -437,9 +438,19 @@ if (isset($_GET['logout'])) {
                                             <strong><?php echo htmlspecialchars($donation['donation_ref']); ?></strong>
                                         </td>
                                         <td>
+                                            <?php 
+                                            $currencyConverter = new CurrencyConverter();
+                                            $original_currency = $donation['original_currency'] ?? 'RWF';
+                                            $original_amount = $donation['original_amount'] ?? $donation['amount'];
+                                            ?>
                                             <span class="text-success font-weight-bold">
-                                                <?php echo number_format($donation['amount'], 0); ?> RWF
+                                                <?php echo $currencyConverter->formatAmount($original_amount, $original_currency); ?>
                                             </span>
+                                            <?php if ($original_currency !== 'RWF'): ?>
+                                            <br><small class="text-muted">
+                                                (≈ <?php echo number_format($donation['amount'], 0); ?> RWF)
+                                            </small>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <span class="badge badge-info">
@@ -504,17 +515,22 @@ if (isset($_GET['logout'])) {
             <div class="dashboard-card">
                 <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <a href="index.php" class="btn btn-custom btn-block">
                             <i class="fas fa-home"></i> Go to Homepage
                         </a>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <a href="volunteer/profile.php" class="btn btn-custom btn-block">
                             <i class="fas fa-user-edit"></i> Update Profile
                         </a>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <a href="volunteer/programs.php" class="btn btn-custom btn-block">
+                            <i class="fas fa-project-diagram"></i> View Programs
+                        </a>
+                    </div>
+                    <div class="col-md-3">
                         <a href="?logout=1" class="btn btn-danger btn-block">
                             <i class="fas fa-sign-out-alt"></i> Logout
                         </a>

@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 require_once 'classes/PayPackHandler.php';
+require_once 'classes/CurrencyConverter.php';
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -252,7 +253,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="donation-summary">
                         <h3 class="text-center mb-3">Donation Summary</h3>
                         <div class="amount-display">
-                            RWF <?php echo number_format($donation['amount'], 0); ?>
+                            <?php 
+                            $currencyConverter = new CurrencyConverter();
+                            $original_currency = $donation['original_currency'] ?? 'RWF';
+                            $original_amount = $donation['original_amount'] ?? $donation['amount'];
+                            echo $currencyConverter->formatAmount($original_amount, $original_currency);
+                            
+                            if ($original_currency !== 'RWF'): ?>
+                                <br><small style="font-size: 0.6em; color: #6c757d;">
+                                    (≈ <?php echo number_format($donation['amount'], 0); ?> RWF)
+                                </small>
+                            <?php endif; ?>
                         </div>
                         <div class="text-center">
                             <p class="mb-1"><strong>Donor:</strong>
@@ -319,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <button type="submit" class="btn btn-pay text-white">
                             <i class="fas fa-credit-card mr-2"></i>
-                            Pay RWF <?php echo number_format($donation['amount'], 0); ?>
+                            Pay <?php echo $currencyConverter->formatAmount($original_amount, $original_currency); ?>
                         </button>
                     </form>
 

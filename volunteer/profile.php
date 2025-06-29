@@ -429,6 +429,9 @@ $activities = $activity_stmt->get_result();
                 <a href="../volunteer_dashboard.php" class="btn btn-outline-primary btn-sm mr-2">
                     <i class="fas fa-tachometer-alt"></i> Dashboard
                 </a>
+                <a href="programs.php" class="btn btn-outline-success btn-sm mr-2">
+                    <i class="fas fa-project-diagram"></i> Programs
+                </a>
                 <a href="../logout.php" class="btn btn-outline-danger btn-sm">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>

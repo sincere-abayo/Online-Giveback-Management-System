@@ -928,6 +928,53 @@ Dufatanye Charity Foundation';
 	function save_shelter()
 	{
 		extract($_POST);
+
+		// Validate required fields
+		if (empty($volunteer_id)) {
+			$resp['status'] = 'failed';
+			$resp['msg'] = "Volunteer ID is required.";
+			return json_encode($resp);
+		}
+
+		if (empty($activity_id)) {
+			$resp['status'] = 'failed';
+			$resp['msg'] = "Activity is required.";
+			return json_encode($resp);
+		}
+
+		if (empty($year)) {
+			$resp['status'] = 'failed';
+			$resp['msg'] = "Event date is required.";
+			return json_encode($resp);
+		}
+
+		// Validate that the date is not in the past (for new records only)
+		if (empty($id)) {
+			$today = date('Y-m-d');
+			if ($year < $today) {
+				$resp['status'] = 'failed';
+				$resp['msg'] = "Cannot select past dates for new assignments. Please choose a future date.";
+				return json_encode($resp);
+			}
+		}
+
+		// Set default values for missing fields
+		if (empty($s)) {
+			$s = 'General Session';
+		}
+
+		if (empty($years)) {
+			$years = '';
+		}
+
+		if (!isset($status)) {
+			$status = 1;
+		}
+
+		if (!isset($end_status)) {
+			$end_status = 0;
+		}
+
 		$data = "";
 		foreach ($_POST as $k => $v) {
 			if (!in_array($k, array('id'))) {
@@ -938,21 +985,34 @@ Dufatanye Charity Foundation';
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
+
+		// Check if this volunteer is already assigned to this activity on the same date
+		if (empty($id)) {
+			$check_sql = "SELECT id FROM `volunteer_history` WHERE volunteer_id = '{$volunteer_id}' AND activity_id = '{$activity_id}' AND year = '{$year}'";
+			$check_result = $this->conn->query($check_sql);
+			if ($check_result->num_rows > 0) {
+				$resp['status'] = 'failed';
+				$resp['msg'] = "This volunteer is already assigned to this activity on the selected date.";
+				return json_encode($resp);
+			}
+		}
+
 		if (empty($id)) {
 			$sql = "INSERT INTO `volunteer_history` set {$data} ";
 		} else {
 			$sql = "UPDATE `volunteer_history` set {$data} where id = '{$id}' ";
 		}
+
 		$save = $this->conn->query($sql);
 		if ($save) {
 			$resp['status'] = 'success';
 			if (empty($id))
-				$resp['msg'] = " History has successfully added.";
+				$resp['msg'] = "Volunteer activity assignment has been added successfully.";
 			else
-				$resp['msg'] = " History details has been saved successfully.";
+				$resp['msg'] = "Volunteer activity assignment has been updated successfully.";
 		} else {
 			$resp['status'] = 'failed';
-			$resp['msg'] = "An error occured.";
+			$resp['msg'] = "An error occurred while saving the assignment.";
 			$resp['err'] = $this->conn->error . "[{$sql}]";
 		}
 		if ($resp['status'] == 'success')
@@ -962,16 +1022,29 @@ Dufatanye Charity Foundation';
 	function delete_shelter()
 	{
 		extract($_POST);
+
+		if (empty($id)) {
+			$resp['status'] = 'failed';
+			$resp['msg'] = "Record ID is required.";
+			return json_encode($resp);
+		}
+
 		$get = $this->conn->query("SELECT * FROM `volunteer_history` where id = '{$id}'");
 		if ($get->num_rows > 0) {
 			$res = $get->fetch_array();
+		} else {
+			$resp['status'] = 'failed';
+			$resp['msg'] = "Record not found.";
+			return json_encode($resp);
 		}
+
 		$del = $this->conn->query("DELETE FROM `volunteer_history` where id = '{$id}'");
 		if ($del) {
 			$resp['status'] = 'success';
-			$this->settings->set_flashdata('success', " History has been deleted successfully.");
+			$this->settings->set_flashdata('success', "Volunteer activity assignment has been deleted successfully.");
 		} else {
 			$resp['status'] = 'failed';
+			$resp['msg'] = "An error occurred while deleting the record.";
 			$resp['error'] = $this->conn->error;
 		}
 		return json_encode($resp);

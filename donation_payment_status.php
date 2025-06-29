@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 require_once 'classes/PayPackHandler.php';
+require_once 'classes/CurrencyConverter.php';
 
 // Enable error reporting for debugging
 error_reporting(E_ALL);
@@ -15,7 +16,7 @@ if (!isset($_GET['transaction_id']) || empty($_GET['transaction_id'])) {
 $transactionId = (int) $_GET['transaction_id'];
 
 // Get transaction details
-$sql = "SELECT pt.*, d.donation_ref, d.fullname, d.email, d.phone, d.amount, d.message
+$sql = "SELECT pt.*, d.donation_ref, d.fullname, d.email, d.phone, d.amount, d.message, d.original_currency, d.original_amount
         FROM payment_transactions pt
         JOIN donations d ON pt.donation_id = d.id
         WHERE pt.transaction_id = ?";
@@ -302,7 +303,17 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1' && isset($_GET['transaction_id'
                         <h3 class="text-center mb-4">Transaction Details</h3>
 
                         <div class="amount-display">
-                            RWF <?php echo number_format($transaction['amount'], 0); ?>
+                            <?php 
+                            $currencyConverter = new CurrencyConverter();
+                            $original_currency = $transaction['original_currency'] ?? 'RWF';
+                            $original_amount = $transaction['original_amount'] ?? $transaction['amount'];
+                            echo $currencyConverter->formatAmount($original_amount, $original_currency);
+                            
+                            if ($original_currency !== 'RWF'): ?>
+                                <br><small style="font-size: 0.6em; color: #6c757d;">
+                                    (≈ <?php echo number_format($transaction['amount'], 0); ?> RWF)
+                                </small>
+                            <?php endif; ?>
                         </div>
 
                         <div class="detail-row">

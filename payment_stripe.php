@@ -1,5 +1,6 @@
 <?php
 include 'config.php';
+require_once 'classes/CurrencyConverter.php';
 
 // Check if donation_id is provided
 if (!isset($_GET['donation_id'])) {
@@ -172,8 +173,19 @@ if (isset($_GET['cancelled'])) {
                 </div>
                 <div class="col-6">
                     <strong>Amount:</strong><br>
-                    <span class="text-success font-weight-bold"><?php echo number_format($donation['amount'], 0); ?>
-                        RWF</span>
+                    <?php 
+                    $currencyConverter = new CurrencyConverter();
+                    $original_currency = $donation['original_currency'] ?? 'RWF';
+                    $original_amount = $donation['original_amount'] ?? $donation['amount'];
+                    ?>
+                    <span class="text-success font-weight-bold">
+                        <?php echo $currencyConverter->formatAmount($original_amount, $original_currency); ?>
+                    </span>
+                    <?php if ($original_currency !== 'RWF'): ?>
+                    <br><small class="text-muted">
+                        (≈ <?php echo number_format($donation['amount'], 0); ?> RWF)
+                    </small>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="row mt-2">
@@ -217,7 +229,7 @@ if (isset($_GET['cancelled'])) {
             </div>
 
             <button type="submit" class="btn btn-primary btn-pay">
-                <i class="fas fa-lock"></i> Pay <?php echo number_format($donation['amount'], 0); ?> RWF Securely
+                <i class="fas fa-lock"></i> Pay <?php echo $currencyConverter->formatAmount($original_amount, $original_currency); ?> Securely
             </button>
         </form>
 

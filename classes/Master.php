@@ -324,15 +324,96 @@ class Master extends DBConnection
 				$this->settings->set_flashdata('success', "Event successfully updated.");
 			$resp['status'] = 'success';
 			$id = empty($id) ? $this->conn->insert_id : $id;
+
+			// Handle image upload
 			if (isset($_FILES['img']) && !empty($_FILES['img']['tmp_name'])) {
+				// Check for upload errors
+				if ($_FILES['img']['error'] !== UPLOAD_ERR_OK) {
+					$upload_errors = array(
+						UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+						UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
+						UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+						UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+						UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+						UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+						UPLOAD_ERR_EXTENSION => 'A PHP extension stopped the file upload'
+					);
+					$error_msg = isset($upload_errors[$_FILES['img']['error']]) ? $upload_errors[$_FILES['img']['error']] : 'Unknown upload error';
+					$resp['status'] = 'failed';
+					$resp['msg'] = 'Upload error: ' . $error_msg;
+					return json_encode($resp);
+				}
+
+				// Validate file type
+				$allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif');
+				$file_type = $_FILES['img']['type'];
+
+				if (!in_array($file_type, $allowed_types)) {
+					$resp['status'] = 'failed';
+					$resp['msg'] = 'Invalid file type. Please upload only JPG, PNG, or GIF images.';
+					return json_encode($resp);
+				}
+
+				// Validate file size (max 2MB to match PHP config)
+				$max_size = 2 * 1024 * 1024; // 2MB
+				if ($_FILES['img']['size'] > $max_size) {
+					$resp['status'] = 'failed';
+					$resp['msg'] = 'File size too large. Please upload an image smaller than 2MB.';
+					return json_encode($resp);
+				}
+
 				$dir = 'uploads/events/';
-				if (!is_dir(base_app . $dir))
-					mkdir(base_app . $dir);
+				if (!is_dir(base_app . $dir)) {
+					if (!mkdir(base_app . $dir, 0755, true)) {
+						$resp['status'] = 'failed';
+						$resp['msg'] = 'Failed to create upload directory. Please check permissions.';
+						return json_encode($resp);
+					}
+				}
+
+				// Check if directory is writable
+				if (!is_writable(base_app . $dir)) {
+					$resp['status'] = 'failed';
+					$resp['msg'] = 'Upload directory is not writable. Please check permissions.';
+					return json_encode($resp);
+				}
+
+				// Get current image path if updating
+				$current_img_path = '';
+				if (!empty($id)) {
+					$current_img = $this->conn->query("SELECT img_path FROM `events` WHERE id = '{$id}'")->fetch_assoc();
+					$current_img_path = $current_img['img_path'] ?? '';
+				}
+
 				$fname = $dir . $id . '.' . (pathinfo($_FILES['img']['name'], PATHINFO_EXTENSION));
 				$move = move_uploaded_file($_FILES['img']['tmp_name'], base_app . $fname);
+
 				if ($move) {
 					$this->conn->query("UPDATE `events` set img_path = '{$fname}' where id = '{$id}'");
+
+					// Delete old image if it exists and is different
+					if (!empty($current_img_path) && $current_img_path != $fname && is_file(base_app . $current_img_path)) {
+						unlink(base_app . $current_img_path);
+					}
+
+					$resp['img_path'] = $fname;
+				} else {
+					$resp['status'] = 'failed';
+					$resp['msg'] = 'Failed to move uploaded file. Error: ' . error_get_last()['message'];
+					return json_encode($resp);
 				}
+			}
+
+			// Handle image removal
+			if (isset($_POST['remove_image']) && $_POST['remove_image'] == '1' && !empty($id)) {
+				$current_img = $this->conn->query("SELECT img_path FROM `events` WHERE id = '{$id}'")->fetch_assoc();
+				$current_img_path = $current_img['img_path'] ?? '';
+
+				if (!empty($current_img_path) && is_file(base_app . $current_img_path)) {
+					unlink(base_app . $current_img_path);
+				}
+
+				$this->conn->query("UPDATE `events` set img_path = '' where id = '{$id}'");
 			}
 		} else {
 			$resp['status'] = 'failed';
@@ -357,6 +438,43 @@ class Master extends DBConnection
 		}
 		return json_encode($resp);
 
+	}
+	function remove_event_image()
+	{
+		extract($_POST);
+
+		if (empty($id)) {
+			$resp['status'] = 'failed';
+			$resp['msg'] = 'Event ID is required.';
+			return json_encode($resp);
+		}
+
+		$current_img = $this->conn->query("SELECT img_path FROM `events` WHERE id = '{$id}'")->fetch_assoc();
+		$current_img_path = $current_img['img_path'] ?? '';
+
+		if (!empty($current_img_path)) {
+			// Delete the file
+			if (is_file(base_app . $current_img_path)) {
+				unlink(base_app . $current_img_path);
+			}
+
+			// Update database
+			$update = $this->conn->query("UPDATE `events` set img_path = '' where id = '{$id}'");
+
+			if ($update) {
+				$resp['status'] = 'success';
+				$resp['msg'] = 'Event image removed successfully.';
+			} else {
+				$resp['status'] = 'failed';
+				$resp['msg'] = 'Failed to update database.';
+				$resp['error'] = $this->conn->error;
+			}
+		} else {
+			$resp['status'] = 'failed';
+			$resp['msg'] = 'No image found for this event.';
+		}
+
+		return json_encode($resp);
 	}
 	function save_donation()
 	{
@@ -1323,6 +1441,9 @@ switch ($action) {
 		break;
 	case 'send_volunteer_email':
 		echo $Master->send_volunteer_email();
+		break;
+	case 'remove_event_image':
+		echo $Master->remove_event_image();
 		break;
 
 	default:

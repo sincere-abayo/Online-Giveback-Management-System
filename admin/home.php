@@ -9,7 +9,7 @@
                 <span class="info-box-number text-right">
                 <?php
   
-      $sql = "SELECT COUNT(*) AS donation FROM donation ";
+      $sql = "SELECT COUNT(*) AS donation FROM donations ";
       $result = $conn->query($sql);
 
       if ($result->num_rows > 0) {

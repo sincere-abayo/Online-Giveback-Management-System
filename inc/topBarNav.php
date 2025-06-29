@@ -75,6 +75,8 @@
         -
         <button class="btn btn-success" type="button" id="volunteer_login">Volunteer Login</button>
         -
+        <button class="btn btn-warning" type="button" id="manager_login">Manager Login</button>
+        -
         <button class="btn btn-primary" type="button" id="checkout">Donate</button>
         <form class="form-inline ml-4 mr-2 pl-2" id="search-form">
             <div class="input-group">
@@ -113,6 +115,9 @@ $(function() {
     })
     $('#volunteer_login').click(function() {
         window.location.href = 'volunteer_login.php'
+    })
+    $('#manager_login').click(function() {
+        window.location.href = 'manager/login.php'
     })
 })
 </script>

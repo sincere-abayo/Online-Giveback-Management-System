@@ -57,69 +57,318 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
     <link rel="shortcut icon" href="../gms1.png" type="image/png">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
         }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
         }
 
-        .main-container {
-            padding: 30px 0;
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
         }
 
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f8f9fa;
-        }
-
-        .section-title {
-            color: #667eea;
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+        .sidebar-brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
         }
 
-        .section-title i {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        .sidebar-brand img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .sidebar-nav {
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 0;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--light-bg);
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
             color: white;
-            width: 50px;
-            height: 50px;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: var(--light-bg);
+        }
+
+        .top-navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .top-navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            color: white;
+            font-weight: 600;
         }
 
+        .user-details h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-details small {
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        /* Programs Content */
+        .programs-content {
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            background: var(--light-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, var(--info-color), #2563eb);
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Tabs */
+        .nav-tabs {
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border: none;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* Program Cards */
         .program-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 5px solid #667eea;
-            transition: all 0.3s ease;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+            border-left: 4px solid var(--primary-color);
             position: relative;
             overflow: hidden;
         }
@@ -131,110 +380,112 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         }
 
         .program-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .program-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
 
         .program-title {
-            color: #667eea;
             font-weight: 700;
-            font-size: 1.4rem;
+            color: var(--text-primary);
+            font-size: 1.25rem;
             margin: 0;
         }
 
         .activity-count {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
             font-weight: 600;
         }
 
         .program-description {
-            color: #6c757d;
-            margin-bottom: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
             line-height: 1.6;
         }
 
+        /* Activity Items */
         .activities-list {
-            margin-top: 20px;
+            margin-top: 1rem;
         }
 
         .activity-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 4px solid #28a745;
-            transition: all 0.3s ease;
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
             position: relative;
         }
 
         .activity-item:hover {
+            box-shadow: var(--shadow-sm);
             transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .activity-item.volunteer-joined {
-            border-left-color: #ffc107;
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid var(--warning-color);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
         }
 
         .activity-item.volunteer-joined::after {
             content: '✓ Joined';
             position: absolute;
-            top: 10px;
-            right: 15px;
-            background: #ffc107;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
+            top: 0.75rem;
+            right: 1rem;
+            background: var(--warning-color);
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
         .activity-name {
             font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
         }
 
         .activity-description {
-            color: #6c757d;
-            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
             line-height: 1.5;
         }
 
+        /* Event Cards */
         .events-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            gap: 1.5rem;
         }
 
         .event-card {
-            background: white;
-            border-radius: 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
         }
 
         .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .event-image {
@@ -244,307 +495,364 @@ while ($row = $volunteer_activities_result->fetch_assoc()) {
         }
 
         .event-content {
-            padding: 20px;
+            padding: 1.5rem;
         }
 
         .event-title {
             font-weight: 700;
-            color: #495057;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
         }
 
         .event-description {
-            color: #6c757d;
-            margin-bottom: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
             line-height: 1.5;
+            font-size: 0.875rem;
         }
 
         .event-date {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
             font-weight: 600;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .stats-card {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .stats-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stats-label {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .nav-tabs {
-            border-bottom: 2px solid #e9ecef;
-            margin-bottom: 30px;
-        }
-
-        .nav-tabs .nav-link {
-            border: none;
-            color: #6c757d;
-            font-weight: 600;
-            padding: 15px 25px;
-            border-radius: 10px 10px 0 0;
-            transition: all 0.3s ease;
-        }
-
-        .nav-tabs .nav-link.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-        }
-
-        .nav-tabs .nav-link:hover {
-            border: none;
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-        }
-
+        /* Empty States */
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
-            color: #6c757d;
+            padding: 3rem 1rem;
         }
 
         .empty-state i {
             font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
         }
 
+        .empty-state h5 {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .content-card {
-                padding: 20px;
-                margin: 10px;
+            .sidebar {
+                transform: translateX(-100%);
             }
 
-            .section-title {
-                font-size: 1.4rem;
-                flex-direction: column;
-                gap: 10px;
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .programs-content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
 
             .program-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 0.75rem;
             }
 
             .events-grid {
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Toggle Button for Mobile */
+        .sidebar-toggle {
+            display: none;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: block;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container">
-            <a class="navbar-brand" href="../index.php">
-                <img src="../uploads/GMS.png" width="30" height="30" class="d-inline-block align-top" alt="GMS">
-                GMS - Programs & Events
-            </a>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <img src="../uploads/GMS.png" alt="GMS">
+                <span>GMS Dashboard</span>
+            </div>
+        </div>
 
-            <div class="navbar-nav ml-auto">
-                <span class="navbar-text mr-3">
-                    Welcome, <?php echo htmlspecialchars($_SESSION['volunteer_name']); ?>
-                </span>
-                <a href="../volunteer_dashboard.php" class="btn btn-outline-primary btn-sm mr-2">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="../volunteer_dashboard.php" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
                 </a>
-                <a href="profile.php" class="btn btn-outline-info btn-sm mr-2">
-                    <i class="fas fa-user"></i> Profile
+            </div>
+            <div class="nav-item">
+                <a href="profile.php" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
                 </a>
-                <a href="../logout.php" class="btn btn-outline-danger btn-sm">
+            </div>
+            <div class="nav-item">
+                <a href="../volunteer_dashboard.php#activities" class="nav-link">
+                    <i class="fas fa-tasks"></i>
+                    <span>Activities</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="../volunteer_dashboard.php#donations" class="nav-link">
+                    <i class="fas fa-heart"></i>
+                    <span>Donations</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="programs.php" class="nav-link active">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Programs</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="../index.php" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Homepage</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <div class="top-navbar-content">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <?php echo strtoupper(substr($volunteer['firstname'], 0, 1)); ?>
+                    </div>
+                    <div class="user-details">
+                        <h6><?php echo htmlspecialchars($volunteer['firstname'] . ' ' . $volunteer['lastname']); ?></h6>
+                        <small>Volunteer</small>
+                    </div>
+                </div>
+
+                <a href="../?logout=1" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </div>
         </div>
-    </nav>
 
-    <div class="main-container">
-        <div class="container">
+        <!-- Programs Content -->
+        <div class="programs-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Programs & Events</h1>
+                <p class="page-subtitle">Explore available programs, activities, and upcoming events</p>
+            </div>
+
             <!-- Statistics -->
-            <div class="content-card">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="stats-card">
-                            <div class="stats-number"><?php echo $programs_result->num_rows; ?></div>
-                            <div class="stats-label">Active Programs</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stats-card">
-                            <div class="stats-number"><?php echo $events_result->num_rows; ?></div>
-                            <div class="stats-label">Upcoming Events</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stats-card">
-                            <div class="stats-number"><?php echo count($volunteer_activity_ids); ?></div>
-                            <div class="stats-label">Your Activities</div>
-                        </div>
-                    </div>
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-number"><?php echo $programs_result->num_rows; ?></div>
+                    <div class="stat-label">Active Programs</div>
+                </div>
+                <div class="stat-card info">
+                    <div class="stat-number"><?php echo $events_result->num_rows; ?></div>
+                    <div class="stat-label">Upcoming Events</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-number"><?php echo count($volunteer_activity_ids); ?></div>
+                    <div class="stat-label">Your Activities</div>
                 </div>
             </div>
 
-            <!-- Tabs Navigation -->
-            <div class="content-card">
-                <ul class="nav nav-tabs" id="contentTabs" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="programs-tab" data-toggle="tab" href="#programs" role="tab">
-                            <i class="fas fa-project-diagram"></i> Programs & Activities
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="events-tab" data-toggle="tab" href="#events" role="tab">
-                            <i class="fas fa-calendar-alt"></i> Events
-                        </a>
-                    </li>
-                </ul>
+            <!-- Content Tabs -->
+            <div class="card">
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="contentTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="programs-tab" data-toggle="tab" href="#programs" role="tab">
+                                <i class="fas fa-project-diagram"></i> Programs & Activities
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="events-tab" data-toggle="tab" href="#events" role="tab">
+                                <i class="fas fa-calendar-alt"></i> Events
+                            </a>
+                        </li>
+                    </ul>
 
-                <div class="tab-content" id="contentTabsContent">
-                    <!-- Programs Tab -->
-                    <div class="tab-pane fade show active" id="programs" role="tabpanel">
-                        <div class="section-header">
-                            <h2 class="section-title">
-                                <i class="fas fa-project-diagram"></i>
-                                Our Programs & Activities
-                            </h2>
-                            <p class="text-muted">Explore the various programs and activities available for volunteers
-                            </p>
-                        </div>
+                    <div class="tab-content" id="contentTabsContent">
+                        <!-- Programs Tab -->
+                        <div class="tab-pane fade show active" id="programs" role="tabpanel">
+                            <div class="mt-4">
+                                <h3 class="mb-4">
+                                    <i class="fas fa-project-diagram text-primary"></i>
+                                    Our Programs & Activities
+                                </h3>
+                                <p class="text-muted mb-4">Explore the various programs and activities available for
+                                    volunteers</p>
 
-                        <?php if ($programs_result->num_rows > 0): ?>
-                            <?php while ($program = $programs_result->fetch_assoc()): ?>
-                                <div class="program-card">
-                                    <div class="program-header">
-                                        <h3 class="program-title"><?php echo htmlspecialchars($program['name']); ?></h3>
-                                        <span class="activity-count">
-                                            <?php echo $program['activity_count']; ?> Activities
-                                        </span>
-                                    </div>
-
-                                    <p class="program-description"><?php echo htmlspecialchars($program['description']); ?></p>
-
-                                    <div class="activities-list">
-                                        <?php
-                                        // Get activities for this program
-                                        $activities_sql = "SELECT * FROM activity_list 
-                                                          WHERE program_id = ? AND status = 1 AND delete_flag = 0 
-                                                          ORDER BY name ASC";
-                                        $activities_stmt = $conn->prepare($activities_sql);
-                                        $activities_stmt->bind_param("i", $program['id']);
-                                        $activities_stmt->execute();
-                                        $activities_result = $activities_stmt->get_result();
-
-                                        if ($activities_result->num_rows > 0):
-                                            while ($activity = $activities_result->fetch_assoc()):
-                                                $is_joined = in_array($activity['id'], $volunteer_activity_ids);
-                                                ?>
-                                                <div class="activity-item <?php echo $is_joined ? 'volunteer-joined' : ''; ?>">
-                                                    <div class="activity-name"><?php echo htmlspecialchars($activity['name']); ?></div>
-                                                    <div class="activity-description">
-                                                        <?php echo htmlspecialchars($activity['description']); ?></div>
-                                                </div>
-                                            <?php
-                                            endwhile;
-                                        else:
-                                            ?>
-                                            <div class="empty-state">
-                                                <i class="fas fa-clipboard-list"></i>
-                                                <p>No activities available for this program yet.</p>
+                                <?php if ($programs_result->num_rows > 0): ?>
+                                    <?php while ($program = $programs_result->fetch_assoc()): ?>
+                                        <div class="program-card">
+                                            <div class="program-header">
+                                                <h4 class="program-title"><?php echo htmlspecialchars($program['name']); ?></h4>
+                                                <span class="activity-count">
+                                                    <?php echo $program['activity_count']; ?> Activities
+                                                </span>
                                             </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endwhile; ?>
-                        <?php else: ?>
-                            <div class="empty-state">
-                                <i class="fas fa-project-diagram"></i>
-                                <h4>No Programs Available</h4>
-                                <p>There are currently no active programs. Please check back later!</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
 
-                    <!-- Events Tab -->
-                    <div class="tab-pane fade" id="events" role="tabpanel">
-                        <div class="section-header">
-                            <h2 class="section-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                Upcoming Events
-                            </h2>
-                            <p class="text-muted">Stay updated with our latest events and activities</p>
-                        </div>
+                                            <p class="program-description">
+                                                <?php echo htmlspecialchars($program['description']); ?></p>
 
-                        <?php if ($events_result->num_rows > 0): ?>
-                            <div class="events-grid">
-                                <?php while ($event = $events_result->fetch_assoc()): ?>
-                                    <div class="event-card">
-                                        <?php if (!empty($event['img_path'])): ?>
-                                            <img src="../<?php echo htmlspecialchars($event['img_path']); ?>"
-                                                alt="<?php echo htmlspecialchars($event['title']); ?>" class="event-image">
-                                        <?php endif; ?>
-                                        <div class="event-content">
-                                            <h4 class="event-title"><?php echo htmlspecialchars($event['title']); ?></h4>
-                                            <p class="event-description"><?php echo htmlspecialchars($event['description']); ?>
-                                            </p>
-                                            <div class="event-date">
-                                                <i class="fas fa-calendar"></i>
-                                                <?php echo date('F j, Y', strtotime($event['schedule'])); ?>
+                                            <div class="activities-list">
+                                                <?php
+                                                // Get activities for this program
+                                                $activities_sql = "SELECT * FROM activity_list 
+                                                                  WHERE program_id = ? AND status = 1 AND delete_flag = 0 
+                                                                  ORDER BY name ASC";
+                                                $activities_stmt = $conn->prepare($activities_sql);
+                                                $activities_stmt->bind_param("i", $program['id']);
+                                                $activities_stmt->execute();
+                                                $activities_result = $activities_stmt->get_result();
+
+                                                if ($activities_result->num_rows > 0):
+                                                    while ($activity = $activities_result->fetch_assoc()):
+                                                        $is_joined = in_array($activity['id'], $volunteer_activity_ids);
+                                                        ?>
+                                                        <div class="activity-item <?php echo $is_joined ? 'volunteer-joined' : ''; ?>">
+                                                            <div class="activity-name">
+                                                                <?php echo htmlspecialchars($activity['name']); ?></div>
+                                                            <div class="activity-description">
+                                                                <?php echo htmlspecialchars($activity['description']); ?>
+                                                            </div>
+                                                        </div>
+                                                        <?php
+                                                    endwhile;
+                                                else:
+                                                    ?>
+                                                    <div class="empty-state">
+                                                        <i class="fas fa-clipboard-list"></i>
+                                                        <p>No activities available for this program yet.</p>
+                                                    </div>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
+                                    <?php endwhile; ?>
+                                <?php else: ?>
+                                    <div class="empty-state">
+                                        <i class="fas fa-project-diagram"></i>
+                                        <h5>No Programs Available</h5>
+                                        <p>There are currently no active programs. Please check back later!</p>
                                     </div>
-                                <?php endwhile; ?>
+                                <?php endif; ?>
                             </div>
-                        <?php else: ?>
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-alt"></i>
-                                <h4>No Events Scheduled</h4>
-                                <p>There are currently no upcoming events. Check back soon for new announcements!</p>
+                        </div>
+
+                        <!-- Events Tab -->
+                        <div class="tab-pane fade" id="events" role="tabpanel">
+                            <div class="mt-4">
+                                <h3 class="mb-4">
+                                    <i class="fas fa-calendar-alt text-primary"></i>
+                                    Upcoming Events
+                                </h3>
+                                <p class="text-muted mb-4">Stay updated with our latest events and activities</p>
+
+                                <?php if ($events_result->num_rows > 0): ?>
+                                    <div class="events-grid">
+                                        <?php while ($event = $events_result->fetch_assoc()): ?>
+                                            <div class="event-card">
+                                                <?php if (!empty($event['img_path'])): ?>
+                                                    <img src="../<?php echo htmlspecialchars($event['img_path']); ?>"
+                                                        alt="<?php echo htmlspecialchars($event['title']); ?>" class="event-image">
+                                                <?php endif; ?>
+                                                <div class="event-content">
+                                                    <h5 class="event-title"><?php echo htmlspecialchars($event['title']); ?>
+                                                    </h5>
+                                                    <p class="event-description">
+                                                        <?php echo htmlspecialchars($event['description']); ?></p>
+                                                    <div class="event-date">
+                                                        <i class="fas fa-calendar"></i>
+                                                        <?php echo date('F j, Y', strtotime($event['schedule'])); ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endwhile; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="empty-state">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <h5>No Events Scheduled</h5>
+                                        <p>There are currently no upcoming events. Check back soon for new announcements!
+                                        </p>
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                        <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function (event) {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
                 }
-            });
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+            }
         });
 
         // Add animation to program cards on scroll

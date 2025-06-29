@@ -7,19 +7,21 @@
                 <span class="badge-text">Dufatanye Events</span>
             </div>
             <h1 class="page-title">Upcoming Events</h1>
-            <p class="page-subtitle">Join us in making a difference through community engagement and charitable initiatives</p>
+            <p class="page-subtitle">Join us in making a difference through community engagement and charitable
+                initiatives</p>
         </div>
 
         <!-- Events Grid -->
         <div class="events-grid">
             <?php 
-            $events = $conn->query("SELECT * FROM events where date(schedule) >= '".date("Y-m-d")."' order by date(schedule) asc ");
+            $events = $conn->query("SELECT * FROM events order by date(schedule) asc ");
             if($events->num_rows > 0):
                 while($row = $events->fetch_array()):
             ?>
             <div class="event-card">
                 <div class="event-image-container">
-                    <img src="<?php echo validate_image($row['img_path']) ?>" alt="<?php echo $row['title'] ?>" class="event-image">
+                    <img src="<?php echo validate_image($row['img_path']) ?>" alt="<?php echo $row['title'] ?>"
+                        class="event-image">
                     <div class="event-date">
                         <span class="day"><?php echo date("d", strtotime($row['schedule'])) ?></span>
                         <span class="month"><?php echo date("M", strtotime($row['schedule'])) ?></span>
@@ -58,33 +60,36 @@
                 <p>Stay tuned! We're planning exciting events for the community. Check back soon for updates.</p>
             </div>
             <?php endif; ?>
-    </div>
+        </div>
     </div>
 </section>
 <script>
-    $(function(){
-        $('.read_more').click(function(){
-            uni_modal("<i class='fa fa-calendar-day'></i> Event Details",'view_event.php?id='+$(this).attr('data-id'), 'large')
-        })
-        
-        // Add loading animation for buttons
-        $('.btn-primary, .btn-view-event').click(function(){
-            $(this).addClass('loading');
-            setTimeout(() => {
-                $(this).removeClass('loading');
-            }, 2000);
-        });
+$(function() {
+    $('.read_more').click(function() {
+        uni_modal("<i class='fa fa-calendar-day'></i> Event Details", 'view_event.php?id=' + $(this)
+            .attr('data-id'), 'large')
     })
+
+    // Add loading animation for buttons
+    $('.btn-primary, .btn-view-event').click(function() {
+        $(this).addClass('loading');
+        setTimeout(() => {
+            $(this).removeClass('loading');
+        }, 2000);
+    });
+})
 </script>
 
 <style>
 /* Loading state for buttons */
-.btn-primary.loading, .btn-view-event.loading {
+.btn-primary.loading,
+.btn-view-event.loading {
     pointer-events: none;
     opacity: 0.7;
 }
 
-.btn-primary.loading::after, .btn-view-event.loading::after {
+.btn-primary.loading::after,
+.btn-view-event.loading::after {
     content: '';
     width: 16px;
     height: 16px;
@@ -97,7 +102,12 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>

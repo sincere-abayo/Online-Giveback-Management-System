@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 include 'config.php';
 
 // Check if donation_id is provided
@@ -63,7 +66,7 @@ if (isset($_GET['session_id'])) {
 // Get volunteer details if logged in
 $volunteer = null;
 if (isset($_SESSION['volunteer_id'])) {
-    $volunteer_sql = "SELECT * FROM volunteers WHERE id = ?";
+    $volunteer_sql = "SELECT * FROM volunteer_list WHERE id = ?";
     $volunteer_stmt = $conn->prepare($volunteer_sql);
     $volunteer_stmt->bind_param("i", $_SESSION['volunteer_id']);
     $volunteer_stmt->execute();
@@ -85,135 +88,135 @@ if (isset($_SESSION['volunteer_id'])) {
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px 0;
-        }
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px 0;
+    }
 
-        .success-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+    .success-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
 
-        .success-icon {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(45deg, #28a745, #20c997);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 30px;
-        }
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+    }
 
-        .success-icon i {
-            font-size: 50px;
-            color: white;
-        }
+    .success-icon i {
+        font-size: 50px;
+        color: white;
+    }
 
-        .donation-details {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 30px 0;
-        }
+    .donation-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 30px 0;
+    }
 
-        .notification-status {
-            background: #e3f2fd;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-        }
+    .notification-status {
+        background: #e3f2fd;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+    }
 
-        .status-item {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-        }
+    .status-item {
+        display: flex;
+        align-items: center;
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+    }
 
-        .status-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-        }
+    .status-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
 
-        .status-icon.success {
-            background: #d4edda;
-            color: #155724;
-        }
+    .status-icon.success {
+        background: #d4edda;
+        color: #155724;
+    }
 
-        .status-icon.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
+    .status-icon.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
 
-        .status-icon.failed {
-            background: #f8d7da;
-            color: #721c24;
-        }
+    .status-icon.failed {
+        background: #f8d7da;
+        color: #721c24;
+    }
 
-        .btn-custom {
-            border-radius: 25px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
+    .btn-custom {
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
 
-        .btn-custom:hover {
-            transform: translateY(-2px);
-        }
+    .btn-custom:hover {
+        transform: translateY(-2px);
+    }
 
-        .social-share {
-            background: #f3e5f5;
-            border-radius: 15px;
-            padding: 25px;
-            margin: 20px 0;
-        }
+    .social-share {
+        background: #f3e5f5;
+        border-radius: 15px;
+        padding: 25px;
+        margin: 20px 0;
+    }
 
-        .share-btn {
-            display: inline-block;
-            margin: 5px;
-            padding: 10px 20px;
-            border-radius: 20px;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
+    .share-btn {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px 20px;
+        border-radius: 20px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
 
-        .share-btn:hover {
-            transform: translateY(-2px);
-            color: white;
-            text-decoration: none;
-        }
+    .share-btn:hover {
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
 
-        .share-btn.facebook {
-            background: #3b5998;
-        }
+    .share-btn.facebook {
+        background: #3b5998;
+    }
 
-        .share-btn.twitter {
-            background: #1da1f2;
-        }
+    .share-btn.twitter {
+        background: #1da1f2;
+    }
 
-        .share-btn.whatsapp {
-            background: #25d366;
-        }
+    .share-btn.whatsapp {
+        background: #25d366;
+    }
 
-        .share-btn.telegram {
-            background: #0088cc;
-        }
+    .share-btn.telegram {
+        background: #0088cc;
+    }
     </style>
 </head>
 
@@ -283,9 +286,9 @@ if (isset($_SESSION['volunteer_id'])) {
                         <strong>Email Confirmation</strong><br>
                         <small class="text-muted">
                             <?php if ($donation['email_sent']): ?>
-                                ✅ Sent to <?php echo htmlspecialchars($donation['email']); ?>
+                            ✅ Sent to <?php echo htmlspecialchars($donation['email']); ?>
                             <?php else: ?>
-                                ⏳ Processing...
+                            ⏳ Processing...
                             <?php endif; ?>
                         </small>
                     </div>
@@ -299,9 +302,9 @@ if (isset($_SESSION['volunteer_id'])) {
                         <strong>SMS Confirmation</strong><br>
                         <small class="text-muted">
                             <?php if ($donation['sms_sent']): ?>
-                                ✅ Sent to <?php echo htmlspecialchars($donation['phone']); ?>
+                            ✅ Sent to <?php echo htmlspecialchars($donation['phone']); ?>
                             <?php else: ?>
-                                ⏳ Processing...
+                            ⏳ Processing...
                             <?php endif; ?>
                         </small>
                     </div>
@@ -342,16 +345,16 @@ if (isset($_SESSION['volunteer_id'])) {
             <!-- Action Buttons -->
             <div class="text-center mt-4">
                 <?php if ($volunteer): ?>
-                    <a href="volunteer_dashboard.php" class="btn btn-primary btn-custom mr-3">
-                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
-                    </a>
+                <a href="volunteer_dashboard.php" class="btn btn-primary btn-custom mr-3">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
                 <?php else: ?>
-                    <a href="volunteer_login.php" class="btn btn-primary btn-custom mr-3">
-                        <i class="fas fa-user"></i> Login to Track Donations
-                    </a>
-                    <a href="registration.php" class="btn btn-success btn-custom mr-3">
-                        <i class="fas fa-user-plus"></i> Register as Volunteer
-                    </a>
+                <a href="volunteer_login.php" class="btn btn-primary btn-custom mr-3">
+                    <i class="fas fa-user"></i> Login to Track Donations
+                </a>
+                <a href="registration.php" class="btn btn-success btn-custom mr-3">
+                    <i class="fas fa-user-plus"></i> Register as Volunteer
+                </a>
                 <?php endif; ?>
 
                 <a href="donation.php" class="btn btn-outline-primary btn-custom">

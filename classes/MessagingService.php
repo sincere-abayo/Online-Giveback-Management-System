@@ -39,11 +39,7 @@ class MessagingService extends DBConnection
             $sms_sent = $this->sendDonationSMS($transaction);
 
             // Update notification status
-            $stmt = $this->conn->prepare("
-                UPDATE donations 
-                SET email_sent = ?, sms_sent = ?, updated_at = NOW()
-                WHERE id = ?
-            ");
+            $stmt = $this->conn->prepare("UPDATE donations SET email_sent = ?, sms_sent = ?, updated_at = NOW() WHERE id = ?");
             $stmt->bind_param("iii", $email_sent, $sms_sent, $transaction['donation_id']);
             $stmt->execute();
 

@@ -9,7 +9,7 @@
 include 'sms_config.php';
 
 // Test phone number (update this with your actual phone number)
-$test_phone = '0723527270'; // Replace with your actual phone number
+$test_phone = '0786729283'; // Replace with your actual phone number
 
 echo "<h2>SMS Test for Dufatanye Charity Foundation</h2>";
 

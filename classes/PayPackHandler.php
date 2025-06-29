@@ -327,6 +327,15 @@ class PayPackHandler extends DBConnection
                             error_log("Notification result: " . json_encode($notifications));
                         }
 
+                        // After sending notifications, always update the donations table
+                        if ($newStatus === 'completed' && isset($result['donation_id'])) {
+                            $stmt = $this->conn->prepare("UPDATE donations SET email_sent = ?, sms_sent = ?, updated_at = NOW() WHERE id = ?");
+                            $email_sent = isset($notifications['email_sent']) ? (int) $notifications['email_sent'] : 1;
+                            $sms_sent = isset($notifications['sms_sent']) ? (int) $notifications['sms_sent'] : 1;
+                            $stmt->bind_param("iii", $email_sent, $sms_sent, $result['donation_id']);
+                            $stmt->execute();
+                        }
+
                         return [
                             'success' => true,
                             'status_updated' => true,
@@ -658,7 +667,7 @@ class PayPackHandler extends DBConnection
 
         // If not in env, try database
         if (empty($this->clientId) || empty($this->clientSecret)) {
-            $stmt = $this->conn->prepare("SELECT setting_key, setting_value FROM payment_settings WHERE gateway = 'paypack' AND is_active = 1");
+            $stmt = $this->conn->prepare("SELECT setting_key, setting_value FROM payment_settings WHERE payment_method = 'paypack' AND is_active = 1");
             $stmt->execute();
             $result = $stmt->get_result();
 

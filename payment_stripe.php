@@ -68,7 +68,7 @@ if (isset($_GET['cancelled'])) {
         border-radius: 20px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         padding: 40px;
-        max-width: 500px;
+        max-width: 900px;
         width: 90%;
     }
 
@@ -213,39 +213,7 @@ if (isset($_GET['cancelled'])) {
                     </div>
                 </div>
 
-                <!-- MTN Mobile Money Option -->
-                <div class="payment-option"
-                    onclick="window.location.href='payment_mtn.php?donation_id=<?php echo $donation_id; ?>'">
-                    <div class="row align-items-center">
-                        <div class="col-2">
-                            <i class="fas fa-mobile-alt fa-2x text-warning"></i>
-                        </div>
-                        <div class="col-8">
-                            <strong>MTN Mobile Money</strong><br>
-                            <small class="text-muted">Pay with MTN MoMo</small>
-                        </div>
-                        <div class="col-2 text-right">
-                            <i class="fas fa-arrow-right text-warning"></i>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Airtel Money Option -->
-                <div class="payment-option"
-                    onclick="window.location.href='payment_airtel.php?donation_id=<?php echo $donation_id; ?>'">
-                    <div class="row align-items-center">
-                        <div class="col-2">
-                            <i class="fas fa-mobile-alt fa-2x text-danger"></i>
-                        </div>
-                        <div class="col-8">
-                            <strong>Airtel Money</strong><br>
-                            <small class="text-muted">Pay with Airtel Money</small>
-                        </div>
-                        <div class="col-2 text-right">
-                            <i class="fas fa-arrow-right text-danger"></i>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <button type="submit" class="btn btn-primary btn-pay">

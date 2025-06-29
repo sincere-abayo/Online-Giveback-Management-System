@@ -200,7 +200,7 @@ class PaymentProcessor extends DBConnection
         $email_sent = $this->sendDonationEmail($donation);
 
         // Send SMS notification
-        // $sms_sent = $this->sendDonationSMS($donation);
+        $sms_sent = $this->sendDonationSMS($donation);
 
         // Update notification status
         $sql = "UPDATE donations SET email_sent = ?, sms_sent = ? WHERE id = ?";

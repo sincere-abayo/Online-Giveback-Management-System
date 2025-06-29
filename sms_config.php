@@ -29,6 +29,10 @@ $sms_templates = [
     'volunteer_welcome' => [
         'description' => 'Sent when volunteer account is approved',
         'message' => 'Welcome {fullname}! Your volunteer account has been approved. Login at our website to start making a difference.'
+    ],
+    'volunteer_assignment' => [
+        'description' => 'Sent when volunteer is assigned to an activity',
+        'message' => 'Hello {firstname}! You have been assigned to {activity_name} ({program_name}) on {date}. Session: {session}. Dufatanye Charity Foundation'
     ]
 ];
 
@@ -132,7 +136,8 @@ $sms_templates_sql = "
 INSERT INTO sms_templates (template_name, message, is_active) VALUES
 ('donation_confirmation', 'Thank you {fullname}! Your donation of {amount} RWF (Ref: {donation_ref}) has been received. Dufatanye Charity Foundation', 1),
 ('donation_receipt', 'Receipt: {donation_ref} | Amount: {amount} RWF | Date: {date} | Dufatanye Charity Foundation', 1),
-('volunteer_welcome', 'Welcome {fullname}! Your volunteer account has been approved. Login at our website to start making a difference.', 1)
+('volunteer_welcome', 'Welcome {fullname}! Your volunteer account has been approved. Login at our website to start making a difference.', 1),
+('volunteer_assignment', 'Hello {firstname}! You have been assigned to {activity_name} ({program_name}) on {date}. Session: {session}. Dufatanye Charity Foundation', 1)
 ON DUPLICATE KEY UPDATE message = VALUES(message), is_active = VALUES(is_active);
 ";
 

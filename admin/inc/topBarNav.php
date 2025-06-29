@@ -69,7 +69,7 @@
             <li class="nav-link">
                 <a href="<?php echo base_url ?>admin/?page=donation/index"
                     class="btn btn-warning btn-sm position-relative">
-                    $
+                    RWF
 
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                         <?php 

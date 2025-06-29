@@ -49,7 +49,6 @@
                                 <th>Phone Number</th>
                                 <th>Amount(Frw)</th>
                                 <th>Status</th>
-                                <th>Action</th>
 
                             </tr>
                         </thead>
@@ -80,12 +79,7 @@
                                         <?php echo $row['status']; ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-sm btn-success" data-id="<?php echo $row['id']; ?>"
-                                        onclick="setToPaid(<?php echo $row['id']; ?>)"> Paid</button>
-                                    <button class="btn btn-sm btn-danger" data-id="<?php echo $row['id']; ?>"
-                                        onclick="setToUnPaid(<?php echo $row['id']; ?>)"> UnPaid</button>
-                                </td>
+
 
                             </tr>
                             <?php endwhile; ?>

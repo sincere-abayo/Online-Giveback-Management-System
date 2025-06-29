@@ -437,25 +437,36 @@ class Master extends DBConnection
 
 	function save_program()
 	{
-		extract($_POST);
 		$data = "";
-		foreach ($_POST as $k => $v) {
-			if (!in_array($k, array('id'))) {
-				if (!is_numeric($v))
-					$v = $this->conn->real_escape_string($v);
-				if (!empty($data))
-					$data .= ",";
-				$data .= " `{$k}`='{$v}' ";
+
+		// Only process the specific fields needed for program_list table
+		$allowed_fields = array('name', 'description', 'status');
+		$processed_data = array();
+		$id = isset($_POST['id']) ? $_POST['id'] : '';
+
+		foreach ($allowed_fields as $field) {
+			if (isset($_POST[$field])) {
+				$value = $_POST[$field];
+				if (!is_numeric($value))
+					$value = $this->conn->real_escape_string($value);
+				$processed_data[$field] = $value;
 			}
 		}
+
+		// Build the data string only with allowed fields
+		foreach ($processed_data as $k => $v) {
+			if (!empty($data))
+				$data .= ",";
+			$data .= " `{$k}`='{$v}' ";
+		}
+
 		if (empty($id)) {
 			$sql = "INSERT INTO `program_list` set {$data} ";
 		} else {
 			$sql = "UPDATE `program_list` set {$data} where id = '{$id}' ";
 		}
-		$check = $this->conn->query("SELECT * FROM `program_list` where `name` = '{$name}' " . (is_numeric($id) && $id > 0 ? "
-and
-id != '{$id}'" : "") . " ")->num_rows;
+
+		$check = $this->conn->query("SELECT * FROM `program_list` where `name` = '{$processed_data['name']}' " . (is_numeric($id) && $id > 0 ? " and id != '{$id}'" : "") . " ")->num_rows;
 		if ($check > 0) {
 			$resp['status'] = 'failed';
 			$resp['msg'] = 'Program already exists.';
@@ -997,6 +1008,8 @@ Dufatanye Charity Foundation';
 			}
 		}
 
+		$is_new_assignment = empty($id);
+
 		if (empty($id)) {
 			$sql = "INSERT INTO `volunteer_history` set {$data} ";
 		} else {
@@ -1006,10 +1019,17 @@ Dufatanye Charity Foundation';
 		$save = $this->conn->query($sql);
 		if ($save) {
 			$resp['status'] = 'success';
-			if (empty($id))
+			if (empty($id)) {
 				$resp['msg'] = "Volunteer activity assignment has been added successfully.";
-			else
+				$assignment_id = $this->conn->insert_id;
+
+				// Send notification for new assignments only
+				if ($is_new_assignment) {
+					$this->sendVolunteerAssignmentNotification($assignment_id);
+				}
+			} else {
 				$resp['msg'] = "Volunteer activity assignment has been updated successfully.";
+			}
 		} else {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "An error occurred while saving the assignment.";
@@ -1018,6 +1038,33 @@ Dufatanye Charity Foundation';
 		if ($resp['status'] == 'success')
 			$this->settings->set_flashdata('success', $resp['msg']);
 		return json_encode($resp);
+	}
+
+	/**
+	 * Send volunteer assignment notification
+	 */
+	private function sendVolunteerAssignmentNotification($assignmentId)
+	{
+		try {
+			// Include the MessagingService
+			require_once __DIR__ . '/MessagingService.php';
+			$messagingService = new MessagingService();
+
+			// Send notification
+			$result = $messagingService->sendVolunteerAssignmentNotification($assignmentId);
+
+			if ($result['success']) {
+				error_log("Volunteer assignment notification sent successfully. Email: " . ($result['email_sent'] ? 'Yes' : 'No') . ", SMS: " . ($result['sms_sent'] ? 'Yes' : 'No'));
+			} else {
+				error_log("Failed to send volunteer assignment notification: " . $result['message']);
+			}
+
+			return $result;
+
+		} catch (Exception $e) {
+			error_log("Error in sendVolunteerAssignmentNotification: " . $e->getMessage());
+			return ['success' => false, 'message' => $e->getMessage()];
+		}
 	}
 	function delete_shelter()
 	{

@@ -20,6 +20,30 @@ class PayPackHandler extends DBConnection
     }
 
     /**
+     * Get payment setting value
+     */
+    private function getPaymentSetting($method, $key)
+    {
+        // First try to get from environment variables
+        $env_key = strtoupper($method . '_' . $key);
+        if (isset($_ENV[$env_key])) {
+            return $_ENV[$env_key];
+        }
+
+        // Fallback to database settings
+        $sql = "SELECT setting_value FROM payment_settings WHERE payment_method = ? AND setting_key = ? AND is_active = 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ss", $method, $key);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc()['setting_value'];
+        }
+        return null;
+    }
+
+    /**
      * Initiate PayPack payment for donation
      */
     public function initiateDonationPayment($donationId, $amount, $phoneNumber)
@@ -214,7 +238,7 @@ class PayPackHandler extends DBConnection
             // Get the gateway reference from database
             $stmt = $this->conn->prepare("
                 SELECT pt.gateway_transaction_id, pt.gateway_reference, pt.status, pt.donation_id,
-                       d.fullname, d.email, d.phone, d.amount
+                       d.fullname, d.email, d.phone, d.amount, d.email_sent, d.sms_sent
                 FROM payment_transactions pt
                 JOIN donations d ON pt.donation_id = d.id
                 WHERE pt.transaction_id = ?
@@ -327,6 +351,8 @@ class PayPackHandler extends DBConnection
                             error_log("Notification result: " . json_encode($notifications));
                         }
 
+
+
                         return [
                             'success' => true,
                             'status_updated' => true,
@@ -398,6 +424,32 @@ class PayPackHandler extends DBConnection
                             }
                         }
                     }
+                }
+            }
+
+            // Even if status check fails, if payment is already completed, send notifications if needed
+            if ($result['status'] === 'completed') {
+                // Check if notifications were already sent
+                if (!$result['email_sent'] || !$result['sms_sent']) {
+                    error_log("Sending notifications for completed payment - email_sent: " . $result['email_sent'] . ", sms_sent: " . $result['sms_sent']);
+                    $notifications = $this->sendDonationNotifications($result['donation_id']);
+                    error_log("Notification result: " . json_encode($notifications));
+                    
+                    return [
+                        'success' => true,
+                        'status_updated' => false,
+                        'current_status' => $result['status'],
+                        'notifications_sent' => $notifications,
+                        'message' => 'Notifications sent for completed payment'
+                    ];
+                } else {
+                    return [
+                        'success' => true,
+                        'status_updated' => false,
+                        'current_status' => $result['status'],
+                        'notifications_sent' => ['success' => true, 'email_sent' => true, 'sms_sent' => true, 'already_sent' => true],
+                        'message' => 'Payment already completed and notifications already sent'
+                    ];
                 }
             }
 
@@ -546,7 +598,7 @@ class PayPackHandler extends DBConnection
                     </p>
                     
                     <div style='text-align: center; margin: 30px 0;'>
-                        <a href='" . $_ENV['BASE_URL'] . "/donation_success.php?donation_id={$donation['id']}' style='background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;'>View Donation Details</a>
+                    <a href='http://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/donation_success.php?donation_id={$donation['id']}' style='background: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; display: inline-block;'>View Donation Details</a>
                     </div>
                     
                     <p style='color: #666; line-height: 1.6;'>
@@ -583,32 +635,79 @@ class PayPackHandler extends DBConnection
     private function sendDonationSMS($donation)
     {
         try {
-            // Get SMS settings
-            $api_key = $_ENV['AFRICASTALKING_API_KEY'] ?? '';
-            $username = $_ENV['AFRICASTALKING_USERNAME'] ?? '';
-            $sender_id = $_ENV['AFRICASTALKING_SENDER_ID'] ?? 'DUFATANYE';
+            // Get SMS settings - using same approach as PaymentProcessor
+            $username = $this->getPaymentSetting('sms', 'africas_talking_username');
+            $api_key = $this->getPaymentSetting('sms', 'africas_talking_api_key');
+
+            if (!$username || !$api_key) {
+                error_log("SMS configuration not found in database, trying environment variables");
+                // Fallback to environment variables
+                $api_key = $_ENV['AFRICASTALKING_API_KEY'] ?? '';
+                $username = $_ENV['AFRICASTALKING_USERNAME'] ?? '';
+            }
 
             if (empty($api_key) || empty($username)) {
-                error_log("Africa's Talking credentials not configured");
+                error_log("Africa's Talking credentials not configured in database or environment");
                 return false;
             }
 
+            // Format phone number
+            $phone = $donation['phone'];
+            if (!preg_match('/^\+/', $phone)) {
+                $phone = '+250' . ltrim($phone, '0');
+            }
+
+            // Get SMS template
+            $sql = "SELECT * FROM sms_templates WHERE template_name = 'donation_confirmation' AND is_active = 1";
+            $result = $this->conn->query($sql);
+
+            if ($result->num_rows === 0) {
+                // Default message if no template
+                $message = sprintf(
+                    'Thank you %s! Your donation of %s RWF (Ref: %s) has been received. Dufatanye Charity Foundation',
+                    $donation['fullname'],
+                    number_format($donation['amount'], 0),
+                    $donation['donation_ref']
+                );
+            } else {
+                $template = $result->fetch_assoc();
+                $message = $template['message'];
+
+                // Replace placeholders
+                $replacements = [
+                    '{fullname}' => $donation['fullname'],
+                    '{amount}' => number_format($donation['amount'], 0),
+                    '{donation_ref}' => $donation['donation_ref'],
+                    '{date}' => date('M j, Y', strtotime($donation['created_at']))
+                ];
+
+                $message = str_replace(array_keys($replacements), array_values($replacements), $message);
+            }
+
+            // Limit message to 160 characters
+            if (strlen($message) > 160) {
+                $message = substr($message, 0, 157) . '...';
+            }
+
             // Initialize Africa's Talking
-            $AT = new AfricasTalking($username, $api_key);
+            $AT = new \AfricasTalking\SDK\AfricasTalking($username, $api_key);
             $sms = $AT->sms();
 
-            // Prepare SMS message
-            $message = "Thank you {$donation['fullname']}! Your donation of RWF " . number_format($donation['amount'], 0) . " has been received. Reference: {$donation['donation_ref']}. Dufatanye Charity Foundation";
-
-            // Send SMS
-            $result = $sms->send([
-                'to' => $donation['phone'],
-                'message' => $message,
-                'from' => $sender_id
+            $response = $sms->send([
+                'to' => $phone,
+                'message' => $message
             ]);
 
-            error_log("Donation SMS sent successfully to: " . $donation['phone']);
-            return true;
+            $recipients = $response['data']->SMSMessageData->Recipients ?? [];
+            $success = !empty($recipients) && $recipients[0]->status === 'Success';
+
+            if ($success) {
+                error_log("Donation SMS sent successfully to: " . $phone);
+            } else {
+                error_log("SMS sending failed. Response: " . json_encode($response));
+            }
+
+            return $success;
 
         } catch (Exception $e) {
             error_log("Error sending donation SMS: " . $e->getMessage());
@@ -658,7 +757,7 @@ class PayPackHandler extends DBConnection
 
         // If not in env, try database
         if (empty($this->clientId) || empty($this->clientSecret)) {
-            $stmt = $this->conn->prepare("SELECT setting_key, setting_value FROM payment_settings WHERE gateway = 'paypack' AND is_active = 1");
+            $stmt = $this->conn->prepare("SELECT setting_key, setting_value FROM payment_settings WHERE payment_method = 'paypack' AND is_active = 1");
             $stmt->execute();
             $result = $stmt->get_result();
 

@@ -1,5 +1,6 @@
 <?php
 include 'config.php';
+require_once 'classes/CurrencyConverter.php';
 
 // Check if donation_id is provided
 if (!isset($_GET['donation_id'])) {
@@ -68,7 +69,7 @@ if (isset($_GET['cancelled'])) {
         border-radius: 20px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         padding: 40px;
-        max-width: 500px;
+        max-width: 900px;
         width: 90%;
     }
 
@@ -172,8 +173,19 @@ if (isset($_GET['cancelled'])) {
                 </div>
                 <div class="col-6">
                     <strong>Amount:</strong><br>
-                    <span class="text-success font-weight-bold"><?php echo number_format($donation['amount'], 0); ?>
-                        RWF</span>
+                    <?php 
+                    $currencyConverter = new CurrencyConverter();
+                    $original_currency = $donation['original_currency'] ?? 'RWF';
+                    $original_amount = $donation['original_amount'] ?? $donation['amount'];
+                    ?>
+                    <span class="text-success font-weight-bold">
+                        <?php echo $currencyConverter->formatAmount($original_amount, $original_currency); ?>
+                    </span>
+                    <?php if ($original_currency !== 'RWF'): ?>
+                    <br><small class="text-muted">
+                        (≈ <?php echo number_format($donation['amount'], 0); ?> RWF)
+                    </small>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="row mt-2">
@@ -213,43 +225,11 @@ if (isset($_GET['cancelled'])) {
                     </div>
                 </div>
 
-                <!-- MTN Mobile Money Option -->
-                <div class="payment-option"
-                    onclick="window.location.href='payment_mtn.php?donation_id=<?php echo $donation_id; ?>'">
-                    <div class="row align-items-center">
-                        <div class="col-2">
-                            <i class="fas fa-mobile-alt fa-2x text-warning"></i>
-                        </div>
-                        <div class="col-8">
-                            <strong>MTN Mobile Money</strong><br>
-                            <small class="text-muted">Pay with MTN MoMo</small>
-                        </div>
-                        <div class="col-2 text-right">
-                            <i class="fas fa-arrow-right text-warning"></i>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Airtel Money Option -->
-                <div class="payment-option"
-                    onclick="window.location.href='payment_airtel.php?donation_id=<?php echo $donation_id; ?>'">
-                    <div class="row align-items-center">
-                        <div class="col-2">
-                            <i class="fas fa-mobile-alt fa-2x text-danger"></i>
-                        </div>
-                        <div class="col-8">
-                            <strong>Airtel Money</strong><br>
-                            <small class="text-muted">Pay with Airtel Money</small>
-                        </div>
-                        <div class="col-2 text-right">
-                            <i class="fas fa-arrow-right text-danger"></i>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <button type="submit" class="btn btn-primary btn-pay">
-                <i class="fas fa-lock"></i> Pay <?php echo number_format($donation['amount'], 0); ?> RWF Securely
+                <i class="fas fa-lock"></i> Pay <?php echo $currencyConverter->formatAmount($original_amount, $original_currency); ?> Securely
             </button>
         </form>
 

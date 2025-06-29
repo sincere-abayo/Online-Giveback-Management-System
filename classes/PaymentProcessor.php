@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . '/../config.php');
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/CurrencyConverter.php';
 
 use AfricasTalking\SDK\AfricasTalking;
 
@@ -40,11 +41,21 @@ class PaymentProcessor extends DBConnection
     }
 
     /**
-     * Process Stripe payment
+     * Process Stripe payment (Legacy method - prefer Stripe Checkout)
      */
     public function processStripePayment($donation_id, $token, $amount)
     {
         try {
+            // Get donation details for currency information
+            $sql = "SELECT original_currency, original_amount FROM donations WHERE id = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("i", $donation_id);
+            $stmt->execute();
+            $donation_result = $stmt->get_result()->fetch_assoc();
+            
+            $original_currency = $donation_result['original_currency'] ?? 'RWF';
+            $original_amount = $donation_result['original_amount'] ?? $amount;
+            
             // Get Stripe settings
             $secret_key = $this->getPaymentSetting('stripe', 'secret_key');
             if (!$secret_key) {
@@ -53,15 +64,25 @@ class PaymentProcessor extends DBConnection
 
             // Initialize Stripe
             \Stripe\Stripe::setApiKey($secret_key);
+            
+            // Calculate correct amount for Stripe (smallest currency unit)
+            $stripe_currency = strtolower($original_currency);
+            if ($original_currency === 'USD') {
+                $stripe_amount = round($original_amount * 100); // Convert to cents
+            } else {
+                $stripe_amount = round($original_amount); // RWF is already smallest unit
+            }
 
             // Create charge
             $charge = \Stripe\Charge::create([
-                'amount' => $amount * 100, // Convert to cents for Stripe
-                'currency' => 'rwf',
+                'amount' => $stripe_amount,
+                'currency' => $stripe_currency,
                 'source' => $token,
                 'description' => 'Donation to Dufatanye Charity Foundation',
                 'metadata' => [
-                    'donation_id' => $donation_id
+                    'donation_id' => $donation_id,
+                    'original_currency' => $original_currency,
+                    'original_amount' => $original_amount
                 ]
             ]);
 
@@ -200,7 +221,7 @@ class PaymentProcessor extends DBConnection
         $email_sent = $this->sendDonationEmail($donation);
 
         // Send SMS notification
-        // $sms_sent = $this->sendDonationSMS($donation);
+        $sms_sent = $this->sendDonationSMS($donation);
 
         // Update notification status
         $sql = "UPDATE donations SET email_sent = ?, sms_sent = ? WHERE id = ?";

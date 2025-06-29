@@ -12,20 +12,20 @@ if(isset($_GET['id'])){
 }
 ?>
 <style>
-    #uni_modal .modal-footer{
-        display:none;
-    }
+#uni_modal .modal-footer {
+    display: none;
+}
 </style>
 <div class="container-fluid">
     <div class="row text-dark">
-            <dl>
-                <dt class="text-muted">Program</dt>
-                <dd class='pl-4 fs-4 fw-bold'><?= isset($name) ? $name : 'N/A' ?></dd>
-                <dt class="text-muted">Description</dt>
-                <dd class='pl-4 fs-4 fw-bold'><small><?= isset($description) ? $description : 'N/A' ?></small></dd>
-                <dt class="text-muted">Status</dt>
-                <dd class='pl-4 fs-4 fw-bold'>
-                    <?php 
+        <dl>
+            <dt class="text-muted">Program</dt>
+            <dd class='pl-4 fs-4 fw-bold'><?= isset($name) ? $name : 'N/A' ?></dd>
+            <dt class="text-muted">Description</dt>
+            <dd class='pl-4 fs-4 fw-bold'><small><?= isset($description) ? $description : 'N/A' ?></small></dd>
+            <dt class="text-muted">Status</dt>
+            <dd class='pl-4 fs-4 fw-bold'>
+                <?php 
                         if(isset($status)){
                             switch($status){
                                 case 0:
@@ -38,10 +38,11 @@ if(isset($_GET['id'])){
                         }
                     
                     ?>
-                </dd>
-            </dl>
+            </dd>
+        </dl>
     </div>
     <div class="text-right">
-        <button class="btn btn-dark btn-sm btn-flat" type="button" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+        <button class="btn btn-dark btn-sm btn-flat" type="button" data-dismiss="modal"><i class="fa fa-close"></i>
+            Close</button>
     </div>
 </div>

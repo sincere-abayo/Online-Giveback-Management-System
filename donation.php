@@ -1,5 +1,6 @@
 <?php
 include 'config.php';
+require_once 'classes/CurrencyConverter.php';
 
 // Check if user is logged in
 $is_logged_in = isset($_SESSION['volunteer_id']) && $_SESSION['volunteer_type'] === 'volunteer';
@@ -20,14 +21,18 @@ if ($is_logged_in) {
 $donation_message = '';
 $donation_type = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
+if (isset($_SERVER["REQUEST_METHOD"]) && $_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
     $fullname = trim($_POST['fullname']);
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
     $amount = floatval($_POST['amount']);
+    $currency = strtoupper(trim($_POST['currency'] ?? 'RWF'));
     $payment_method = $_POST['payment_method'];
     $message = trim($_POST['message'] ?? '');
     $volunteer_id = $is_logged_in ? $_SESSION['volunteer_id'] : null;
+
+    // Initialize currency converter
+    $currencyConverter = new CurrencyConverter();
 
     // Validation
     $errors = [];
@@ -40,19 +45,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
         $errors[] = "Phone number is required";
     if ($amount <= 0)
         $errors[] = "Amount must be greater than 0";
+    if (!$currencyConverter->isValidAmount($amount, $currency))
+        $errors[] = "Amount does not meet minimum requirement for " . $currency;
     if (empty($payment_method))
         $errors[] = "Please select a payment method";
 
     if (empty($errors)) {
+        // Currency conversion - always store amount in RWF for processing
+        $original_amount = $amount;
+        $original_currency = $currency;
+        $exchange_rate = $currencyConverter->getExchangeRate($currency, 'RWF');
+        $rwf_amount = $currencyConverter->convert($amount, $currency, 'RWF');
+
         // Generate unique donation reference
         $donation_ref = 'DON' . date('Ymd') . strtoupper(substr(md5(uniqid()), 0, 6));
 
-        // Save donation to database
-        $sql = "INSERT INTO donations (donation_ref, volunteer_id, fullname, email, phone, amount, payment_method, message, status, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
+        // Save donation to database with currency information
+        $sql = "INSERT INTO donations (donation_ref, volunteer_id, fullname, email, phone, amount, original_currency, original_amount, exchange_rate, payment_method, message, status, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
 
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sisssdss", $donation_ref, $volunteer_id, $fullname, $email, $phone, $amount, $payment_method, $message);
+        $stmt->bind_param("sisssdsddss", $donation_ref, $volunteer_id, $fullname, $email, $phone, $rwf_amount, $original_currency, $original_amount, $exchange_rate, $payment_method, $message);
 
         if ($stmt->execute()) {
             $donation_id = $conn->insert_id;
@@ -268,6 +281,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
             border-radius: 4px;
             background: linear-gradient(45deg, #28a745, #20c997);
         }
+
+        #currency-icon img {
+            transition: box-shadow 0.2s;
+        }
+
+        #currency:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #667eea33;
+        }
+
+        @media (max-width: 575px) {
+            #currency-icon img {
+                width: 22px !important;
+                height: 16px !important;
+            }
+
+            #currency {
+                font-size: 0.95rem !important;
+            }
+        }
     </style>
 </head>
 
@@ -356,11 +389,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
                                         <small class="form-text text-muted">10 digits only (e.g., 0781234567)</small>
                                     </div>
                                 </div>
+                                <div class="col-md-6 h-16">
+                                    <div class="form-group">
+                                        <label for="currency">Currency *</label>
+                                        <div class="input-group align-items-center" style="gap: 12px;">
+                                            <span class="input-group-text p-0 border-0 bg-transparent"
+                                                id="currency-icon"
+                                                style="display: flex; align-items: center; background: none; border: none;">
+                                                <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/rw.svg"
+                                                    alt="RWF" id="flag-rwf"
+                                                    style="width:28px; height:20px; display:inline; margin-right: 4px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                                <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/us.svg"
+                                                    alt="USD" id="flag-usd"
+                                                    style="width:28px; height:20px; display:none; margin-right: 4px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                                            </span>
+                                            <select class="form-control border-0 shadow-none" id="currency"
+                                                name="currency" required
+                                                style="max-width: 220px; height: 150px; font-weight: 500; font-size: 1rem; background: none;"
+                                                onchange="updateCurrency()">
+                                                <option value="RWF" data-flag="rw">RWF (Rwandan Franc)</option>
+                                                <option value="USD" data-flag="us">USD (US Dollar)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="amount">Amount (RWF) *</label>
+                                        <label for="amount">Amount (<span id="currency-symbol">RWF</span>) *</label>
                                         <input type="number" class="form-control" id="amount" name="amount" min="100"
                                             step="100" required>
+                                        <small class="form-text text-muted" id="amount-helper">Minimum: 100 RWF</small>
+                                        <small class="form-text text-info" id="conversion-info"
+                                            style="display: none;"></small>
                                     </div>
                                 </div>
                             </div>
@@ -368,13 +428,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
                             <!-- Amount Presets -->
                             <div class="form-group">
                                 <label>Quick Amount Selection:</label>
-                                <div class="amount-presets">
-                                    <div class="amount-preset" data-amount="1000">1,000 RWF</div>
-                                    <div class="amount-preset" data-amount="5000">5,000 RWF</div>
-                                    <div class="amount-preset" data-amount="10000">10,000 RWF</div>
-                                    <div class="amount-preset" data-amount="25000">25,000 RWF</div>
-                                    <div class="amount-preset" data-amount="50000">50,000 RWF</div>
-                                    <div class="amount-preset" data-amount="100000">100,000 RWF</div>
+                                <div class="amount-presets" id="amount-presets">
+                                    <!-- Will be populated by JavaScript based on selected currency -->
                                 </div>
                             </div>
 
@@ -463,11 +518,117 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['donate'])) {
             $('#' + method).prop('checked', true);
         }
 
+        // Currency conversion logic
+        const USD_TO_RWF_RATE = 1300; // Fixed rate for academic purposes
+
+        const currencyPresets = {
+            'RWF': [
+                { amount: 1000, display: '1,000 RWF' },
+                { amount: 5000, display: '5,000 RWF' },
+                { amount: 10000, display: '10,000 RWF' },
+                { amount: 25000, display: '25,000 RWF' },
+                { amount: 50000, display: '50,000 RWF' },
+                { amount: 100000, display: '100,000 RWF' }
+            ],
+            'USD': [
+                { amount: 1, display: '$1' },
+                { amount: 5, display: '$5' },
+                { amount: 10, display: '$10' },
+                { amount: 25, display: '$25' },
+                { amount: 50, display: '$50' },
+                { amount: 100, display: '$100' }
+            ]
+        };
+
+        function updateCurrency() {
+            const currency = $('#currency').val();
+            const currentAmount = parseFloat($('#amount').val()) || 0;
+
+            // Update currency symbol
+            $('#currency-symbol').text(currency);
+
+            // Update minimum amount and step
+            if (currency === 'USD') {
+                $('#amount').attr('min', '1').attr('step', '1');
+                $('#amount-helper').text('Minimum: $1 USD');
+
+                // Convert current amount if it was in RWF
+                if (currentAmount >= 100) {
+                    const convertedAmount = Math.round((currentAmount / USD_TO_RWF_RATE) * 100) / 100;
+                    $('#amount').val(convertedAmount);
+                }
+            } else {
+                $('#amount').attr('min', '100').attr('step', '100');
+                $('#amount-helper').text('Minimum: 100 RWF');
+
+                // Convert current amount if it was in USD
+                if (currentAmount >= 1 && currentAmount < 100) {
+                    const convertedAmount = Math.round(currentAmount * USD_TO_RWF_RATE);
+                    $('#amount').val(convertedAmount);
+                }
+            }
+
+            // Update presets
+            updateAmountPresets(currency);
+
+            // Update conversion info
+            updateConversionInfo();
+        }
+
+        function updateAmountPresets(currency) {
+            const presetsContainer = $('#amount-presets');
+            presetsContainer.empty();
+
+            currencyPresets[currency].forEach(preset => {
+                const presetDiv = $('<div class="amount-preset" data-amount="' + preset.amount + '">' + preset.display + '</div>');
+                presetsContainer.append(presetDiv);
+            });
+
+            // Re-bind click events
+            $('.amount-preset').click(function () {
+                $('.amount-preset').removeClass('selected');
+                $(this).addClass('selected');
+                $('#amount').val($(this).data('amount'));
+                updateConversionInfo();
+            });
+        }
+
+        function updateConversionInfo() {
+            const currency = $('#currency').val();
+            const amount = parseFloat($('#amount').val());
+
+            if (amount > 0) {
+                let convertedAmount, convertedCurrency;
+
+                if (currency === 'USD') {
+                    convertedAmount = Math.round(amount * USD_TO_RWF_RATE);
+                    convertedCurrency = 'RWF';
+                    $('#conversion-info').html('≈ ' + convertedAmount.toLocaleString() + ' RWF').show();
+                } else {
+                    convertedAmount = Math.round((amount / USD_TO_RWF_RATE) * 100) / 100;
+                    convertedCurrency = 'USD';
+                    $('#conversion-info').html('≈ $' + convertedAmount.toFixed(2) + ' USD').show();
+                }
+            } else {
+                $('#conversion-info').hide();
+            }
+        }
+
+        // Initialize currency on page load
+        updateCurrency();
+
+        // Update conversion info when amount changes
+        $('#amount').on('input', updateConversionInfo);
+
         // Form validation
         $('#donationForm').submit(function (e) {
-            var amount = parseFloat($('#amount').val());
-            if (amount < 100) {
-                alert('Minimum donation amount is 100 RWF');
+            const currency = $('#currency').val();
+            const amount = parseFloat($('#amount').val());
+
+            let minAmount = currency === 'USD' ? 1 : 100;
+
+            if (amount < minAmount) {
+                alert('Minimum donation amount is ' + (currency === 'USD' ? '$1 USD' : '100 RWF'));
                 e.preventDefault();
                 return false;
             }

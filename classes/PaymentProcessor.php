@@ -1,8 +1,14 @@
 <?php
 require_once(__DIR__ . '/../config.php');
 require_once __DIR__ . '/../vendor/autoload.php';
+// Load .env variables if available
+if (class_exists('Dotenv\\Dotenv')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->load();
+}
 require_once __DIR__ . '/CurrencyConverter.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
 use AfricasTalking\SDK\AfricasTalking;
 
 class PaymentProcessor extends DBConnection
@@ -52,19 +58,19 @@ class PaymentProcessor extends DBConnection
             $stmt->bind_param("i", $donation_id);
             $stmt->execute();
             $donation_result = $stmt->get_result()->fetch_assoc();
-            
+
             $original_currency = $donation_result['original_currency'] ?? 'RWF';
             $original_amount = $donation_result['original_amount'] ?? $amount;
-            
+
             // Get Stripe settings
             $secret_key = $this->getPaymentSetting('stripe', 'secret_key');
             if (!$secret_key) {
-                throw new Exception('Stripe configuration not found');
+                throw new \Exception('Stripe configuration not found');
             }
 
             // Initialize Stripe
             \Stripe\Stripe::setApiKey($secret_key);
-            
+
             // Calculate correct amount for Stripe (smallest currency unit)
             $stripe_currency = strtolower($original_currency);
             if ($original_currency === 'USD') {
@@ -99,10 +105,10 @@ class PaymentProcessor extends DBConnection
                     'message' => 'Payment processed successfully'
                 ];
             } else {
-                throw new Exception('Payment failed: ' . $charge->failure_message);
+                throw new \Exception('Payment failed: ' . $charge->failure_message);
             }
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->updateDonationStatus($donation_id, 'failed');
             return [
                 'success' => false,
@@ -141,7 +147,7 @@ class PaymentProcessor extends DBConnection
                 ];
             }
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->updateDonationStatus($donation_id, 'failed');
             return [
                 'success' => false,
@@ -269,7 +275,7 @@ class PaymentProcessor extends DBConnection
 
             // Send email using PHPMailer
             require_once __DIR__ . '/../vendor/autoload.php';
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
 
             // Configure email settings from environment variables
             $mail->isSMTP();
@@ -277,7 +283,7 @@ class PaymentProcessor extends DBConnection
             $mail->SMTPAuth = true;
             $mail->Username = $_ENV['SMTP_USERNAME'] ?? 'your-email@gmail.com';
             $mail->Password = $_ENV['SMTP_PASSWORD'] ?? 'your-password';
-            $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = $_ENV['SMTP_PORT'] ?? 587;
 
             $mail->setFrom($_ENV['SMTP_FROM_EMAIL'] ?? 'noreply@dufatanye.org', $_ENV['SMTP_FROM_NAME'] ?? 'Dufatanye Charity Foundation');
@@ -290,7 +296,7 @@ class PaymentProcessor extends DBConnection
             $mail->send();
             return true;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log('Email error: ' . $e->getMessage());
             return false;
         }
@@ -303,11 +309,11 @@ class PaymentProcessor extends DBConnection
     {
         try {
             // Get SMS settings
-            $username = $this->getPaymentSetting('sms', 'africas_talking_username');
-            $api_key = $this->getPaymentSetting('sms', 'africas_talking_api_key');
+            $username = $_ENV['AFRICASTALKING_USERNAME'] ?? null;
+            $api_key = $_ENV['AFRICASTALKING_API_KEY'] ?? null;
 
             if (!$username || !$api_key) {
-                throw new Exception('SMS configuration not found');
+                throw new \Exception('SMS configuration not found');
             }
 
             // Format phone number
@@ -349,7 +355,7 @@ class PaymentProcessor extends DBConnection
             }
 
             // Initialize Africa's Talking
-            $AT = new AfricasTalking($username, $api_key);
+            $AT = new \AfricasTalking\SDK\AfricasTalking($username, $api_key);
             $sms = $AT->sms();
 
             $response = $sms->send([
@@ -360,7 +366,7 @@ class PaymentProcessor extends DBConnection
             $recipients = $response['data']->SMSMessageData->Recipients ?? [];
             return !empty($recipients) && $recipients[0]->status === 'Success';
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log('SMS error: ' . $e->getMessage());
             return false;
         }
@@ -382,7 +388,7 @@ class PaymentProcessor extends DBConnection
                 'success' => true,
                 'message' => 'Payment processed successfully via webhook'
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             error_log('Webhook payment processing error: ' . $e->getMessage());
             return [
                 'success' => false,

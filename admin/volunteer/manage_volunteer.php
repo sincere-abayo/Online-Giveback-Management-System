@@ -149,15 +149,24 @@ if (isset($_GET['id'])) {
                                 method: 'POST',
                                 dataType: 'json',
                                 success: function (emailResp) {
-                                    if (emailResp.success) {
-                                        alert_toast("Volunteer saved successfully! Email notification sent.", 'success');
+                                    var message = "Volunteer saved successfully! ";
+                                    if (emailResp.email_sent && emailResp.sms_sent) {
+                                        message += "Email and SMS notifications sent.";
+                                        alert_toast(message, 'success');
+                                    } else if (emailResp.email_sent) {
+                                        message += "Email sent, SMS failed: " + emailResp.message;
+                                        alert_toast(message, 'warning');
+                                    } else if (emailResp.sms_sent) {
+                                        message += "SMS sent, Email failed: " + emailResp.message;
+                                        alert_toast(message, 'warning');
                                     } else {
-                                        alert_toast("Volunteer saved successfully! Email notification failed: " + emailResp.message, 'warning');
+                                        message += "Both email and SMS failed: " + emailResp.message;
+                                        alert_toast(message, 'error');
                                     }
                                     location.href = "./?page=volunteer/view_volunteer&id=" + resp.sid;
                                 },
                                 error: function () {
-                                    alert_toast("Volunteer saved successfully! Email notification failed.", 'warning');
+                                    alert_toast("Volunteer saved successfully! Notifications failed.", 'warning');
                                     location.href = "./?page=volunteer/view_volunteer&id=" + resp.sid;
                                 }
                             });

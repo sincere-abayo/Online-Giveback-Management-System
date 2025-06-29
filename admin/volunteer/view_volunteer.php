@@ -254,7 +254,7 @@ if (isset($_GET['id'])) {
                 "volunteer/update_status.php?volunteer_id=<?= isset($id) ? $id : "" ?>")
         })
         $('#add_shelter').click(function () {
-            uni_modal("Add History Record for <b><?= isset($roll) ? $roll . ' - ' . $fullname : "" ?></b>",
+            uni_modal("Assign  program/Activity on  <b><?= isset($roll) ? $roll . ' - ' . $fullname : "" ?></b>",
                 "volunteer/manage_shelter.php?volunteer_id=<?= isset($id) ? $id : "" ?>", 'mid-large')
         })
         $('.edit_shelter').click(function () {

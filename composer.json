@@ -5,6 +5,7 @@
         "phpmailer/phpmailer": "^6.10",
         "stripe/stripe-php": "^13.0",
         "africastalking/africastalking": "^3.0",
-        "vlucas/phpdotenv": "^5.0"
+        "vlucas/phpdotenv": "^5.0",
+        "m1/env": "^2.2"
     }
 }

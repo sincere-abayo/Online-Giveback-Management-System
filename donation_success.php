@@ -35,9 +35,9 @@ if (isset($_GET['session_id'])) {
     $stripe_secret_key = $_ENV['STRIPE_SECRET_KEY'] ?? 'sk_test_your_stripe_secret_key';
     $stripe_key_sql = "SELECT setting_value FROM payment_settings WHERE payment_method = 'stripe' AND setting_key = 'secret_key' AND is_active = 1";
     $stripe_result = $conn->query($stripe_key_sql);
-    if ($stripe_result->num_rows > 0) {
-        $stripe_secret_key = $stripe_result->fetch_assoc()['setting_value'];
-    }
+    // if ($stripe_result->num_rows > 0) {
+    //     $stripe_secret_key = $stripe_result->fetch_assoc()['setting_value'];
+    // }
 
     // Initialize Stripe
     \Stripe\Stripe::setApiKey($stripe_secret_key);

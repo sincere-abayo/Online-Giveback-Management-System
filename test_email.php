@@ -10,7 +10,7 @@ try {
     $emailService = new SimpleEmailService();
 
     // Test email parameters
-    $testEmail = 'test@example.com'; // Replace with your test email
+    $testEmail = 'abayosincere11@gmail.com'; // Replace with your test email
     $firstName = 'Test';
     $lastName = 'User';
     $rollNumber = '2024001';

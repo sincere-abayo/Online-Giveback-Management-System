@@ -630,6 +630,46 @@ class Master extends DBConnection
 		$is_new = $is_new == 'true';
 		$status = intval($status);
 
+		$email_sent = false;
+		$sms_sent = false;
+
+		try {
+			// Send Email Notification
+			$email_sent = $this->sendVolunteerEmail($volunteer_data, $is_new, $status);
+
+			// Send SMS Notification
+			$sms_sent = $this->sendVolunteerSMS($volunteer_data, $is_new, $status);
+
+			$message = '';
+			if ($email_sent && $sms_sent) {
+				$message = 'Email and SMS notifications sent successfully';
+			} elseif ($email_sent) {
+				$message = 'Email sent successfully, SMS failed';
+			} elseif ($sms_sent) {
+				$message = 'SMS sent successfully, Email failed';
+			} else {
+				$message = 'Both email and SMS failed';
+			}
+
+			return json_encode([
+				'success' => ($email_sent || $sms_sent),
+				'email_sent' => $email_sent,
+				'sms_sent' => $sms_sent,
+				'message' => $message
+			]);
+
+		} catch (Exception $e) {
+			return json_encode([
+				'success' => false,
+				'email_sent' => $email_sent,
+				'sms_sent' => $sms_sent,
+				'message' => 'Notification Error: ' . $e->getMessage()
+			]);
+		}
+	}
+
+	private function sendVolunteerEmail($volunteer_data, $is_new, $status)
+	{
 		try {
 			// Check if PHPMailer is available
 			if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
@@ -654,35 +694,139 @@ class Master extends DBConnection
 
 					// Content
 					$mail->isHTML(true);
-					$subject = $is_new ? 'Welcome to Dufatanye Charity Foundation - Volunteer Registration' : 'Volunteer Status Update -
-Dufatanye Charity Foundation';
+					$subject = $is_new ? 'Welcome to Dufatanye Charity Foundation - Volunteer Registration' : 'Volunteer Status Update - Dufatanye Charity Foundation';
 					$mail->Subject = $subject;
 					$mail->Body = $this->getVolunteerEmailHTML($volunteer_data, $is_new, $status);
 					$mail->AltBody = $this->getVolunteerEmailText($volunteer_data, $is_new, $status);
 
 					$mail->send();
-					return json_encode(['success' => true, 'message' => 'Email sent successfully']);
+					return true;
 				}
 			}
 
 			// Fallback to basic PHP mail
-			$subject = $is_new ? 'Welcome to Dufatanye Charity Foundation - Volunteer Registration' : 'Volunteer Status Update -
-Dufatanye Charity Foundation';
+			$subject = $is_new ? 'Welcome to Dufatanye Charity Foundation - Volunteer Registration' : 'Volunteer Status Update - Dufatanye Charity Foundation';
 			$message = $this->getVolunteerEmailHTML($volunteer_data, $is_new, $status);
 
 			$headers = "MIME-Version: 1.0" . "\r\n";
 			$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
 			$headers .= 'From: Dufatanye Charity Foundation <dufatanyecharity@gmail.com>' . "\r\n";
 
-			$success = mail($volunteer_data['email'], $subject, $message, $headers);
-
-			return json_encode([
-				'success' => $success,
-				'message' => $success ? 'Email sent successfully' : 'Failed to send email'
-			]);
+			return mail($volunteer_data['email'], $subject, $message, $headers);
 
 		} catch (Exception $e) {
-			return json_encode(['success' => false, 'message' => 'Email Error: ' . $e->getMessage()]);
+			error_log('Volunteer email error: ' . $e->getMessage());
+			return false;
+		}
+	}
+
+	private function sendVolunteerSMS($volunteer_data, $is_new, $status)
+	{
+		try {
+			// Get SMS settings from environment variables (like payment system)
+			$username = $_ENV['AFRICASTALKING_USERNAME'] ?? null;
+			$api_key = $_ENV['AFRICASTALKING_API_KEY'] ?? null;
+
+			if (!$username || !$api_key) {
+				error_log("Africa's Talking credentials not configured in environment variables");
+				return false;
+			}
+
+			// Format phone number properly (like payment system)
+			$phone = $volunteer_data['contact'];
+			if (!preg_match('/^\+/', $phone)) {
+				$phone = '+250' . ltrim($phone, '0');
+			}
+
+			// Get SMS template from database
+			$template_name = $is_new ? 'volunteer_registration' : 'volunteer_status_update';
+			$sql = "SELECT message FROM sms_templates WHERE template_name = ? AND is_active = 1";
+			$stmt = $this->conn->prepare($sql);
+			$stmt->bind_param("s", $template_name);
+			$stmt->execute();
+			$result = $stmt->get_result();
+
+			if ($result->num_rows > 0) {
+				$template = $result->fetch_assoc();
+				$message = $template['message'];
+
+				// Replace template variables
+				$status_text = '';
+				switch ($status) {
+					case 0:
+						$status_text = 'Pending Review';
+						break;
+					case 1:
+						$status_text = 'Approved';
+						break;
+					case 2:
+						$status_text = 'Denied';
+						break;
+				}
+
+				$replacements = [
+					'{firstname}' => $volunteer_data['firstname'],
+					'{lastname}' => $volunteer_data['lastname'],
+					'{email}' => $volunteer_data['email'],
+					'{contact}' => $volunteer_data['contact'],
+					'{status}' => $status_text,
+					'{roll}' => $volunteer_data['roll'] ?? 'N/A',
+					'{date}' => date('M j, Y')
+				];
+
+				$message = str_replace(array_keys($replacements), array_values($replacements), $message);
+			} else {
+				// Fallback message if template not found
+				if ($is_new) {
+					$message = "Hello {$volunteer_data['firstname']}! Thank you for registering as a volunteer with Dufatanye Charity Foundation. Your application is under review. We'll notify you soon.";
+				} else {
+					$status_text = '';
+					switch ($status) {
+						case 0:
+							$status_text = 'Pending Review';
+							break;
+						case 1:
+							$status_text = 'Approved';
+							break;
+						case 2:
+							$status_text = 'Denied';
+							break;
+					}
+					$message = "Hello {$volunteer_data['firstname']}! Your volunteer application status has been updated to: {$status_text}. Dufatanye Charity Foundation";
+				}
+			}
+
+			// Limit message to 160 characters
+			if (strlen($message) > 160) {
+				$message = substr($message, 0, 157) . '...';
+			}
+
+			// Initialize Africa's Talking
+			require_once __DIR__ . '/../vendor/autoload.php';
+			$AT = new \AfricasTalking\SDK\AfricasTalking($username, $api_key);
+			$sms = $AT->sms();
+
+			// Send SMS (without 'from' parameter - let Africa's Talking use default)
+			$response = $sms->send([
+				'to' => $phone,
+				'message' => $message
+			]);
+
+			// Validate response like payment system does
+			$recipients = $response['data']->SMSMessageData->Recipients ?? [];
+			$success = !empty($recipients) && $recipients[0]->status === 'Success';
+
+			if ($success) {
+				error_log("Volunteer SMS sent successfully to: " . $phone);
+			} else {
+				error_log("Volunteer SMS sending failed. Response: " . json_encode($response));
+			}
+
+			return $success;
+
+		} catch (Exception $e) {
+			error_log('Volunteer SMS error: ' . $e->getMessage());
+			return false;
 		}
 	}
 
